@@ -3,7 +3,6 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { SolanaProvider } from "@/components/SolanaProvider";
 import { Sidebar } from "@/components/Sidebar";
-import { BackgroundGradient } from "@/components/BackgroundGradient";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -28,14 +27,15 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-white selection:bg-primary/10`}
       >
         <SolanaProvider>
-          <div className="flex min-h-screen bg-background text-foreground relative">
-            <BackgroundGradient />
-            <Sidebar />
-            <main className="flex-1 overflow-y-auto">
-              <div className="container mx-auto p-8 max-w-7xl">
+          <div className="flex bg-white text-foreground">
+            <aside className="sticky top-0 h-screen w-64 flex-shrink-0 border-r border-border bg-white">
+              <Sidebar />
+            </aside>
+            <main className="flex-1 min-h-screen overflow-x-hidden">
+              <div className="container mx-auto p-8 max-w-6xl">
                 {children}
               </div>
             </main>

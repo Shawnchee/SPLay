@@ -76,22 +76,22 @@ export function TokenList() {
         <>
             <div className="divide-y divide-border">
                 {tokens.map((token) => (
-                    <div key={token.pubkey} className="py-4 flex items-center justify-between hover:bg-[#f4f7f9] transition-all group px-4 -mx-4 rounded-xl cursor-pointer" onClick={() => setSelectedToken(token)}>
+                    <div key={token.pubkey} className="py-5 flex items-center justify-between hover:bg-[#f4f7f9] transition-all group px-4 -mx-4 rounded-xl cursor-pointer" onClick={() => setSelectedToken(token)}>
                         <div className="flex items-center gap-4">
-                            <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center text-primary font-bold text-lg">
+                            <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center text-primary font-extrabold text-sm">
                                 {token.mint.slice(0, 1).toUpperCase()}
                             </div>
                             <div className="flex flex-col">
-                                <span className="font-bold text-base">{token.mint.slice(0, 4)}...{token.mint.slice(-4)}</span>
-                                <span className="text-xs font-semibold text-muted-foreground uppercase">{token.decimals} Decimals</span>
+                                <span className="font-bold text-[15px] text-foreground tracking-tight">{token.mint.slice(0, 4)}...{token.mint.slice(-4)}</span>
+                                <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">{token.decimals} Decimals</span>
                             </div>
                         </div>
                         <div className="flex items-center gap-12">
                             <div className="hidden md:block text-right">
-                                <div className="font-bold">S${(token.balance * 1.0).toLocaleString()}</div>
-                                <div className="text-xs font-semibold text-green-600">Devnet Asset</div>
+                                <div className="font-extrabold text-[15px] text-foreground">S${(token.balance * 1.0).toLocaleString()}</div>
+                                <div className="text-[11px] font-bold text-green-600 uppercase tracking-wide">Devnet Asset</div>
                             </div>
-                            <button className="px-4 py-1.5 bg-primary/5 text-primary text-sm font-bold rounded-lg hover:bg-primary/10 transition-all opacity-0 group-hover:opacity-100">
+                            <button className="px-5 py-2 bg-primary/5 text-primary text-[13px] font-bold rounded-lg hover:bg-primary/10 transition-all opacity-0 group-hover:opacity-100 shadow-sm border border-primary/10">
                                 Manage
                             </button>
                         </div>

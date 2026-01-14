@@ -3,27 +3,36 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { Home, Coins, CreditCard, ArrowRightLeft, Shield, Snowflake } from "lucide-react";
+import { Home, LayoutGrid, Clock, Compass, HelpCircle, Settings, Users } from "lucide-react";
 
 const navigation = [
     { name: "Home", href: "/", icon: Home },
-    { name: "My Assets", href: "/assets", icon: Coins },
-    { name: "Transactions", href: "/transactions", icon: ArrowRightLeft },
-    // { name: "Delegation", href: "/delegation", icon: Shield }, // Can enable later
-    // { name: "Freeze Authority", href: "/freeze", icon: Snowflake }, // Can enable later
+    { name: "My assets", href: "/assets", icon: LayoutGrid },
+    { name: "Transactions", href: "/transactions", icon: Clock },
+    { name: "Explore", href: "/explore", icon: Compass },
+    { name: "Learning rewards", href: "/learning", icon: HelpCircle },
+];
+
+const secondaryNavigation = [
+    { name: "Invite friends", href: "/invite", icon: Users },
+    { name: "More", href: "/more", icon: Settings },
 ];
 
 export function Sidebar() {
     const pathname = usePathname();
 
     return (
-        <div className="flex h-screen w-64 flex-col border-r border-border bg-card">
-            <div className="flex h-16 items-center px-6">
-                <span className="text-xl font-bold bg-gradient-to-r from-blue-500 to-purple-600 bg-clip-text text-transparent">
-                    SolPlay
-                </span>
+        <div className="flex h-screen w-64 flex-col border-r border-border bg-white">
+            <div className="flex h-16 items-center px-8">
+                <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
+                        <span className="text-white font-bold text-xl">S</span>
+                    </div>
+                    <span className="text-xl font-semibold text-foreground">SolPlay</span>
+                </div>
             </div>
-            <nav className="flex-1 space-y-1 px-3 py-4">
+
+            <nav className="flex-1 space-y-1.5 px-4 py-4">
                 {navigation.map((item) => {
                     const isActive = pathname === item.href;
                     return (
@@ -31,21 +40,38 @@ export function Sidebar() {
                             key={item.name}
                             href={item.href}
                             className={cn(
-                                "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
+                                "flex items-center gap-4 rounded-full px-4 py-2.5 text-sm font-semibold transition-all",
                                 isActive
-                                    ? "bg-primary/10 text-primary"
-                                    : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                                    ? "bg-[#f4f7f9] text-primary"
+                                    : "text-muted-foreground hover:bg-[#f4f7f9] hover:text-foreground"
                             )}
                         >
-                            <item.icon className="h-5 w-5" />
+                            <item.icon className={cn("h-5 w-5", isActive ? "text-primary" : "text-muted-foreground")} />
                             {item.name}
                         </Link>
                     );
                 })}
+
+                <div className="mt-8 pt-4 border-t border-border">
+                    {secondaryNavigation.map((item) => (
+                        <Link
+                            key={item.name}
+                            href={item.href}
+                            className="flex items-center gap-4 rounded-full px-4 py-2.5 text-sm font-semibold text-muted-foreground hover:bg-[#f4f7f9] hover:text-foreground"
+                        >
+                            <item.icon className="h-5 w-5" />
+                            {item.name}
+                        </Link>
+                    ))}
+                </div>
             </nav>
-            <div className="p-4 border-t border-border">
-                <div className="text-xs text-muted-foreground">
-                    Running on Solana Devnet
+
+            <div className="p-6 border-t border-border">
+                <div className="flex items-center gap-3 px-3 py-2 bg-[#f4f7f9] rounded-lg">
+                    <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                    <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+                        Solana Devnet
+                    </div>
                 </div>
             </div>
         </div>

@@ -74,31 +74,29 @@ export function TokenList() {
 
     return (
         <>
-            <div className="overflow-hidden rounded-lg border bg-card text-card-foreground shadow-sm">
-                <div className="grid grid-cols-1 divide-y">
-                    {tokens.map((token) => (
-                        <div key={token.pubkey} className="p-4 flex items-center justify-between hover:bg-muted/50 transition-colors group">
-                            <div className="flex flex-col">
-                                <span className="font-medium text-sm font-mono text-primary flex items-center gap-2">
-                                    {token.mint.slice(0, 4)}...{token.mint.slice(-4)}
-                                </span>
-                                <span className="text-xs text-muted-foreground">Balance</span>
+            <div className="divide-y divide-border">
+                {tokens.map((token) => (
+                    <div key={token.pubkey} className="py-4 flex items-center justify-between hover:bg-[#f4f7f9] transition-all group px-4 -mx-4 rounded-xl cursor-pointer" onClick={() => setSelectedToken(token)}>
+                        <div className="flex items-center gap-4">
+                            <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center text-primary font-bold text-lg">
+                                {token.mint.slice(0, 1).toUpperCase()}
                             </div>
-                            <div className="flex items-center gap-4">
-                                <span className="font-bold text-lg">
-                                    {token.balance}
-                                </span>
-                                <button
-                                    onClick={() => setSelectedToken(token)}
-                                    className="p-2 hover:bg-background rounded-full transition-colors opacity-0 group-hover:opacity-100 border border-border"
-                                    title="Actions"
-                                >
-                                    <Settings className="w-4 h-4 text-muted-foreground" />
-                                </button>
+                            <div className="flex flex-col">
+                                <span className="font-bold text-base">{token.mint.slice(0, 4)}...{token.mint.slice(-4)}</span>
+                                <span className="text-xs font-semibold text-muted-foreground uppercase">{token.decimals} Decimals</span>
                             </div>
                         </div>
-                    ))}
-                </div>
+                        <div className="flex items-center gap-12">
+                            <div className="hidden md:block text-right">
+                                <div className="font-bold">S${(token.balance * 1.0).toLocaleString()}</div>
+                                <div className="text-xs font-semibold text-green-600">Devnet Asset</div>
+                            </div>
+                            <button className="px-4 py-1.5 bg-primary/5 text-primary text-sm font-bold rounded-lg hover:bg-primary/10 transition-all opacity-0 group-hover:opacity-100">
+                                Manage
+                            </button>
+                        </div>
+                    </div>
+                ))}
             </div>
 
             {selectedToken && (

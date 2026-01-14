@@ -101,72 +101,66 @@ export function TokenMint() {
     return (
         <form onSubmit={handleMint} className="space-y-4">
             {error && (
-                <div className="p-3 text-sm text-destructive-foreground bg-destructive/10 border border-destructive/20 rounded-md">
+                <div className="p-3 text-xs font-semibold text-destructive-foreground bg-destructive/10 border border-destructive/20 rounded-lg">
                     {error}
                 </div>
             )}
             {success && (
-                <div className="p-3 text-sm text-green-600 bg-green-500/10 border border-green-500/20 rounded-md break-all">
+                <div className="p-3 text-xs font-semibold text-green-600 bg-green-500/10 border border-green-500/20 rounded-lg break-all">
                     {success}
                 </div>
             )}
 
-            <div className="space-y-2">
-                <label className="text-sm font-medium leading-none">Token Name</label>
-                <input
-                    type="text"
-                    placeholder="e.g. SolPlay Token"
-                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    required
-                />
+            <div className="flex flex-col items-center py-6">
+                <div className="text-5xl font-bold text-primary mb-2">0</div>
+                <div className="text-sm font-bold text-muted-foreground uppercase tracking-widest">SPT</div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                    <label className="text-sm font-medium leading-none">Symbol</label>
+            <div className="space-y-4 border rounded-xl overflow-hidden divide-y divide-border">
+                <div className="p-4 flex items-center justify-between hover:bg-[#f4f7f9] transition-all cursor-pointer">
+                    <div className="text-sm font-bold text-muted-foreground">Name</div>
                     <input
-                        type="text"
-                        placeholder="SPT"
-                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                        value={formData.name}
+                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                        placeholder="SolPlay Token"
+                        className="text-right font-bold text-sm bg-transparent outline-none border-none placeholder:text-muted-foreground/50"
+                    />
+                </div>
+                <div className="p-4 flex items-center justify-between hover:bg-[#f4f7f9] transition-all cursor-pointer">
+                    <div className="text-sm font-bold text-muted-foreground">Symbol</div>
+                    <input
                         value={formData.symbol}
                         onChange={(e) => setFormData({ ...formData, symbol: e.target.value })}
-                        required
+                        placeholder="SPT"
+                        className="text-right font-bold text-sm bg-transparent outline-none border-none placeholder:text-muted-foreground/50"
                     />
                 </div>
-                <div className="space-y-2">
-                    <label className="text-sm font-medium leading-none">Decimals</label>
+                <div className="p-4 flex items-center justify-between hover:bg-[#f4f7f9] transition-all cursor-pointer">
+                    <div className="text-sm font-bold text-muted-foreground">Decimals</div>
                     <input
                         type="number"
-                        min="0"
-                        max="9"
-                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                         value={formData.decimals}
                         onChange={(e) => setFormData({ ...formData, decimals: e.target.value })}
-                        required
+                        className="text-right font-bold text-sm bg-transparent outline-none border-none max-w-[50px]"
                     />
                 </div>
-            </div>
-
-            <div className="space-y-2">
-                <label className="text-sm font-medium leading-none">Initial Supply</label>
-                <input
-                    type="number"
-                    min="1"
-                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                    value={formData.amount}
-                    onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
-                    required
-                />
+                <div className="p-4 flex items-center justify-between hover:bg-[#f4f7f9] transition-all cursor-pointer">
+                    <div className="text-sm font-bold text-muted-foreground">Initial Supply</div>
+                    <input
+                        type="number"
+                        value={formData.amount}
+                        onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
+                        className="text-right font-bold text-sm bg-transparent outline-none border-none"
+                    />
+                </div>
             </div>
 
             <button
                 type="submit"
                 disabled={loading || !wallet.connected}
                 className={cn(
-                    "inline-flex w-full items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
-                    "bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
+                    "inline-flex w-full items-center justify-center rounded-full text-base font-bold ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:bg-muted disabled:text-muted-foreground",
+                    "bg-primary text-primary-foreground hover:bg-primary/95 h-12 shadow-sm mt-4"
                 )}
             >
                 {loading ? (
@@ -175,11 +169,11 @@ export function TokenMint() {
                         Minting...
                     </>
                 ) : (
-                    "Mint Token"
+                    "Preview Mint"
                 )}
             </button>
             {!wallet.connected && (
-                <p className="text-xs text-center text-muted-foreground">Connect wallet to mint</p>
+                <p className="text-[10px] font-bold text-center text-muted-foreground uppercase tracking-wider mt-2">Connect wallet to mint tokens</p>
             )}
         </form>
     );

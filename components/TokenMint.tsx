@@ -13,7 +13,8 @@ import {
 } from "@solana/spl-token";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
-import { Loader2 } from "lucide-react";
+import { Info, Loader2 } from "lucide-react";
+import { Tooltip } from "@/components/Tooltip";
 
 export function TokenMint() {
     const { connection } = useConnection();
@@ -129,7 +130,7 @@ export function TokenMint() {
     return (
         <form onSubmit={handleMint} className="space-y-4">
             {error && (
-                <div className="p-3 text-xs font-semibold text-destructive-foreground bg-destructive/10 border border-destructive/20 rounded-lg">
+                <div className="p-3 text-xs font-semibold text-black bg-destructive/10 border border-destructive/20 rounded-lg">
                     {error}
                 </div>
             )}
@@ -150,7 +151,7 @@ export function TokenMint() {
                     <input
                         value={formData.name}
                         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                        placeholder="SolPlay Token"
+                        placeholder="SPLay Token"
                         className="text-right font-bold text-sm bg-transparent outline-none border-none placeholder:text-muted-foreground/30 text-foreground"
                     />
                 </div>
@@ -164,7 +165,12 @@ export function TokenMint() {
                     />
                 </div>
                 <div className="p-4 flex items-center justify-between hover:bg-[#f4f7f9] transition-all cursor-pointer group">
-                    <div className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider group-hover:text-foreground transition-colors">Decimals</div>
+                    <div className="flex items-center gap-2">
+                        <div className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider group-hover:text-foreground transition-colors">Decimals</div>
+                        <Tooltip content="Smallest unit of your token. Solana standard is 9 (like 1.000000000). Use 0 for NFTs or non-divisible items.">
+                            <Info className="w-3 h-3 text-muted-foreground" />
+                        </Tooltip>
+                    </div>
                     <input
                         type="number"
                         value={formData.decimals}
@@ -173,7 +179,12 @@ export function TokenMint() {
                     />
                 </div>
                 <div className="p-4 flex items-center justify-between hover:bg-[#f4f7f9] transition-all cursor-pointer group">
-                    <div className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider group-hover:text-foreground transition-colors">Initial Supply</div>
+                    <div className="flex items-center gap-2">
+                        <div className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider group-hover:text-foreground transition-colors">Initial Supply</div>
+                        <Tooltip content="Total amount of tokens to create immediately and send to your wallet.">
+                            <Info className="w-3 h-3 text-muted-foreground" />
+                        </Tooltip>
+                    </div>
                     <input
                         type="number"
                         value={formData.amount}

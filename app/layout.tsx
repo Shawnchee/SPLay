@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "SolPlay - Solana Devnet Playground",
+  title: "SPLay - Solana Devnet Playground",
   description: "Learn and experiment with SPL tokens safely on Solana devnet.",
 };
 

@@ -16,8 +16,9 @@ import {
     createThawAccountInstruction,
     TOKEN_PROGRAM_ID
 } from "@solana/spl-token";
-import { Loader2, Send, Shield, Snowflake, X } from "lucide-react";
+import { Info, Loader2, Send, Shield, Snowflake, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Tooltip } from "@/components/Tooltip";
 
 interface TokenActionModalProps {
     isOpen: boolean;
@@ -220,18 +221,26 @@ export function TokenActionModal({ isOpen, onClose, tokenMint, tokenBalance, tok
                 <h2 className="text-xl font-bold mb-4">Token Actions</h2>
                 <div className="flex bg-muted p-1 rounded-lg mb-6">
                     {(['transfer', 'delegate', 'freeze'] as const).map((tab) => (
-                        <button
+                        <Tooltip
                             key={tab}
-                            onClick={() => { setActiveTab(tab); setStatus(null); }}
-                            className={cn(
-                                "flex-1 py-1.5 text-sm font-medium rounded-md capitalize transition-all",
-                                activeTab === tab
-                                    ? "bg-background shadow-sm text-foreground"
-                                    : "text-muted-foreground hover:text-foreground"
-                            )}
+                            content={
+                                tab === 'transfer' ? "Move tokens to another wallet." :
+                                    tab === 'delegate' ? "Give spending permission to another wallet." :
+                                        "Authority control: Lock a wallet's ability to move tokens."
+                            }
                         >
-                            {tab}
-                        </button>
+                            <button
+                                onClick={() => { setActiveTab(tab); setStatus(null); }}
+                                className={cn(
+                                    "flex-1 py-1.5 px-6 text-sm font-medium rounded-md capitalize transition-all",
+                                    activeTab === tab
+                                        ? "bg-background shadow-sm text-foreground"
+                                        : "text-muted-foreground hover:text-foreground"
+                                )}
+                            >
+                                {tab}
+                            </button>
+                        </Tooltip>
                     ))}
                 </div>
 
@@ -279,8 +288,12 @@ export function TokenActionModal({ isOpen, onClose, tokenMint, tokenBalance, tok
 
                     {activeTab === 'delegate' && (
                         <div className="space-y-4">
-                            <div className="p-3 bg-blue-500/10 text-blue-500 text-xs rounded-md">
-                                Approve another wallet to spend tokens on your behalf.
+                            <div className="p-3 bg-blue-500/10 text-blue-600 border border-blue-500/20 text-[11px] leading-relaxed rounded-lg flex gap-3">
+                                <Info className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                                <div>
+                                    <p className="font-bold uppercase tracking-wider mb-1">What is Delegation?</p>
+                                    Approve another wallet (the "Delegate") to spend tokens on your behalf. This is how DEXs (like Raydium) or Staking platforms work—they need your permission to move tokens when you swap or stake.
+                                </div>
                             </div>
                             <div className="space-y-2">
                                 <label className="text-sm font-medium">Delegate Address</label>
@@ -314,8 +327,12 @@ export function TokenActionModal({ isOpen, onClose, tokenMint, tokenBalance, tok
 
                     {activeTab === 'freeze' && (
                         <div className="space-y-4">
-                            <div className="p-3 bg-yellow-500/10 text-yellow-600 text-xs rounded-md">
-                                Only the Mint Authority can freeze accounts holding this token.
+                            <div className="p-3 bg-amber-500/10 text-amber-600 border border-amber-500/20 text-[11px] leading-relaxed rounded-lg flex gap-3">
+                                <Info className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                                <div>
+                                    <p className="font-bold uppercase tracking-wider mb-1">What is Freezing?</p>
+                                    Only the <span className="font-bold underline">Mint Authority</span> can freeze an account. Once frozen, the holder cannot transfer or sell these tokens until you "Thaw" them. Used for compliance, security, or preventing fraud.
+                                </div>
                             </div>
                             <div className="space-y-2">
                                 <label className="text-sm font-medium">Target Wallet Address</label>

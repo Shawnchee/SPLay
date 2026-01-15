@@ -7,7 +7,8 @@ import { PublicKey } from "@solana/web3.js";
 import { Loader2 } from "lucide-react";
 import { TokenActionModal } from "@/components/TokenActionModal";
 import { cn } from "@/lib/utils";
-import { Send, Settings } from "lucide-react";
+import { Send, Settings, RefreshCw } from "lucide-react";
+import { RefreshButton } from "@/components/RefreshButton";
 
 import { useSolanaWallet } from "@/lib/useSolanaWallet";
 
@@ -37,14 +38,13 @@ export function TokenList() {
                     <p className="text-[11px] text-muted-foreground leading-relaxed">
                         You're currently connected to <span className="text-primary font-bold">Solana Devnet</span>. Assets from Mainnet will not appear here.
                     </p>
-                    <button
+                    <RefreshButton
                         onClick={() => refresh()}
-                        disabled={refreshing}
-                        className="w-full py-2.5 bg-primary text-white text-[13px] font-bold rounded-full hover:bg-primary/90 transition-all shadow-sm flex items-center justify-center gap-2"
-                    >
-                        {refreshing && <Loader2 className="w-3 h-3 animate-spin" />}
-                        Refresh Account
-                    </button>
+                        isLoading={refreshing}
+                        label="Refresh Account"
+                        variant="text"
+                        className="w-full justify-center py-2.5"
+                    />
                     <button
                         onClick={async () => {
                             if (!publicKey) return;
@@ -71,13 +71,11 @@ export function TokenList() {
                 <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
                     Showing {tokens.length} Assets
                 </div>
-                <button
+                <RefreshButton
                     onClick={() => refreshSilent()}
-                    className="p-1 hover:bg-[#f4f7f9] rounded-full transition-all"
-                    title="Refresh list"
-                >
-                    <Loader2 className={cn("w-3 h-3 text-muted-foreground", refreshing && "animate-spin")} />
-                </button>
+                    isLoading={refreshing}
+                    variant="icon"
+                />
             </div>
 
             <div className="divide-y divide-border">

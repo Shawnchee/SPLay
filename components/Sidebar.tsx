@@ -7,16 +7,9 @@ import { Home, LayoutGrid, Clock, Compass, HelpCircle, Settings, Users } from "l
 
 const navigation = [
     { name: "Home", href: "/", icon: Home },
-    { name: "My assets", href: "/assets", icon: LayoutGrid },
-    { name: "Transactions", href: "/transactions", icon: Clock },
-    { name: "Explore", href: "/explore", icon: Compass },
-    { name: "Learning rewards", href: "/learning", icon: HelpCircle },
 ];
 
-const secondaryNavigation = [
-    { name: "Invite friends", href: "/invite", icon: Users },
-    { name: "More", href: "/more", icon: Settings },
-];
+const secondaryNavigation: { name: string; href: string; icon: any }[] = [];
 
 export function Sidebar() {
     const pathname = usePathname();
@@ -28,7 +21,7 @@ export function Sidebar() {
                     <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center shadow-sm">
                         <span className="text-white font-extrabold text-[10px] tracking-tighter">SOL</span>
                     </div>
-                    <span className="text-lg font-bold tracking-tight text-foreground">SolPlay</span>
+                    <span className="text-lg font-bold tracking-tight text-foreground">SPLay</span>
                 </div>
             </div>
 

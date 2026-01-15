@@ -46,7 +46,6 @@ export default function Home() {
               <span className="text-6xl font-bold font-sans tracking-tight text-foreground">
                 S${connected ? totalBalanceUSD.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "0.00"}
               </span>
-              <span className="text-sm font-bold text-muted-foreground">0% lately</span>
             </div>
           </div>
 

@@ -113,7 +113,7 @@ export function TokenList() {
                                 </div>
                             </div>
                             {!token.isNative && (
-                                <button className="px-5 py-2 bg-primary/5 text-primary text-[13px] font-bold rounded-lg hover:bg-primary/10 transition-all opacity-0 group-hover:opacity-100 shadow-sm border border-primary/10">
+                                <button className="px-5 py-2 bg-primary/5 text-primary text-[13px] font-bold rounded-lg hover:bg-primary/20 cursor-pointer transition-all opacity-80 group-hover:opacity-100 shadow-sm border border-primary/10">
                                     Manage
                                 </button>
                             )}

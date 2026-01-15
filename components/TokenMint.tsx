@@ -160,7 +160,7 @@ export function TokenMint() {
                 disabled={loading || !wallet.connected}
                 className={cn(
                     "inline-flex w-full items-center justify-center rounded-full text-base font-bold ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:bg-muted disabled:text-muted-foreground",
-                    "bg-primary text-primary-foreground hover:bg-primary/95 h-12 shadow-sm mt-4"
+                    "bg-primary text-primary-foreground hover:bg-primary/95 h-12 shadow-sm mt-4 cursor-pointer"
                 )}
             >
                 {loading ? (

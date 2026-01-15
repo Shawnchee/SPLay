@@ -41,14 +41,21 @@ export function TokenMint() {
         setError(null);
 
         try {
+            // 1. Get the minimum lamports for a Mint Account to be rent-exempt
             const lamports = await getMinimumBalanceForRentExemptMint(connection);
+
+            // 2. Generate a new keypair for the Token Mint itself
             const mintKeypair = Keypair.generate();
+
+            // 3. Derive the Associated Token Account (ATA) address for the user
             const tokenATA = await getAssociatedTokenAddress(
                 mintKeypair.publicKey,
                 wallet.publicKey
             );
 
+            // 4. Build the transaction with 4 instructions:
             const transaction = new Transaction().add(
+                // A) Create the account for the Mint
                 SystemProgram.createAccount({
                     fromPubkey: wallet.publicKey,
                     newAccountPubkey: mintKeypair.publicKey,
@@ -56,6 +63,7 @@ export function TokenMint() {
                     lamports,
                     programId: TOKEN_PROGRAM_ID,
                 }),
+                // B) Initialize it as a Mint
                 createInitializeMintInstruction(
                     mintKeypair.publicKey,
                     Number(formData.decimals),
@@ -63,12 +71,14 @@ export function TokenMint() {
                     wallet.publicKey,
                     TOKEN_PROGRAM_ID
                 ),
+                // C) Create the user's ATA for this new token
                 createAssociatedTokenAccountInstruction(
                     wallet.publicKey,
                     tokenATA,
                     wallet.publicKey,
                     mintKeypair.publicKey
                 ),
+                // D) Mint the initial supply into the user's ATA
                 createMintToInstruction(
                     mintKeypair.publicKey,
                     tokenATA,
@@ -77,22 +87,40 @@ export function TokenMint() {
                 )
             );
 
-            const { blockhash } = await connection.getLatestBlockhash();
+            // 5. Fetch the latest blockhash with 'confirmed' commitment for reliability
+            const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash('confirmed');
             transaction.recentBlockhash = blockhash;
             transaction.feePayer = wallet.publicKey;
 
+            // 6. Partially sign with the Mint Keypair (since we're creating it)
             transaction.partialSign(mintKeypair);
 
+            // 7. Request wallet signature and send
             const signedTx = await wallet.signTransaction(transaction);
-            const txId = await connection.sendRawTransaction(signedTx.serialize());
+            const txId = await connection.sendRawTransaction(signedTx.serialize(), {
+                skipPreflight: false,
+                preflightCommitment: 'confirmed'
+            });
 
-            await connection.confirmTransaction(txId, 'confirmed');
+            // 8. Use the modern confirmation strategy
+            await connection.confirmTransaction({
+                blockhash,
+                lastValidBlockHeight,
+                signature: txId
+            }, 'confirmed');
 
-            setSuccess(`Token Minted! Address: ${mintKeypair.publicKey.toBase58()}`);
+            setSuccess(`Success! Minted ${formData.amount} tokens. Mint ID: ${mintKeypair.publicKey.toBase58().slice(0, 8)}...`);
             setFormData({ name: "", symbol: "", decimals: "9", amount: "1000" });
         } catch (err: any) {
-            console.error(err);
-            setError(err.message || "Failed to mint token");
+            console.error("Mint Error Details:", err);
+
+            // Extract simulation logs if it's a SendTransactionError
+            if (err.logs) {
+                console.error("Simulation Logs:", err.logs);
+                setError(`Simulation Failed: ${err.message}. Check console for logs.`);
+            } else {
+                setError(err.message || "Failed to mint token");
+            }
         } finally {
             setLoading(false);
         }

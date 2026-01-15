@@ -9,71 +9,14 @@ import { TokenActionModal } from "@/components/TokenActionModal";
 import { cn } from "@/lib/utils";
 import { Send, Settings } from "lucide-react";
 
-interface TokenAccount {
-    mint: string;
-    balance: number;
-    pubkey: string;
-    decimals: number;
-    isNative?: boolean;
-}
+import { useSolanaWallet } from "@/lib/useSolanaWallet";
 
 export function TokenList() {
+    const { tokens, loading, refreshing, refresh, refreshSilent, connected, publicKey } = useSolanaWallet();
     const { connection } = useConnection();
-    const { publicKey } = useWallet();
-    const [tokens, setTokens] = useState<TokenAccount[]>([]);
-    const [loading, setLoading] = useState(false);
-    const [refreshing, setRefreshing] = useState(false);
-    const [selectedToken, setSelectedToken] = useState<TokenAccount | null>(null);
+    const [selectedToken, setSelectedToken] = useState<any | null>(null);
 
-    const fetchTokens = async (silent = false) => {
-        if (!publicKey) return;
-        if (!silent) setLoading(true);
-        else setRefreshing(true);
-
-        try {
-            // Fetch Native SOL
-            const solBalance = await connection.getBalance(publicKey);
-            const nativeSol: TokenAccount = {
-                mint: "So11111111111111111111111111111111111111112", // Wrapped SOL mint for consistency
-                balance: solBalance / 1e9,
-                pubkey: publicKey.toBase58(),
-                decimals: 9,
-                isNative: true
-            };
-
-            // Fetch SPL Tokens
-            const accounts = await connection.getParsedTokenAccountsByOwner(
-                publicKey,
-                { programId: TOKEN_PROGRAM_ID }
-            );
-
-            const parsedTokens = accounts.value.map((account) => {
-                const parsedInfo = account.account.data.parsed.info;
-                return {
-                    mint: parsedInfo.mint,
-                    balance: parsedInfo.tokenAmount.uiAmount,
-                    decimals: parsedInfo.tokenAmount.decimals,
-                    pubkey: account.pubkey.toBase58(),
-                };
-            }).filter(t => t.balance > 0);
-
-            // Combine and sort (Native SOL first)
-            setTokens([nativeSol, ...parsedTokens]);
-        } catch (error) {
-            console.error("Error fetching tokens:", error);
-        } finally {
-            setLoading(false);
-            setRefreshing(false);
-        }
-    };
-
-    useEffect(() => {
-        fetchTokens();
-        const interval = setInterval(() => fetchTokens(true), 15000); // Poll every 15s silently
-        return () => clearInterval(interval);
-    }, [publicKey, connection]);
-
-    if (!publicKey) {
+    if (!connected) {
         return <div className="text-center py-10 text-muted-foreground border border-dashed rounded-xl font-medium">Please connect your wallet to view assets.</div>;
     }
 
@@ -95,7 +38,7 @@ export function TokenList() {
                         You're currently connected to <span className="text-primary font-bold">Solana Devnet</span>. Assets from Mainnet will not appear here.
                     </p>
                     <button
-                        onClick={() => fetchTokens()}
+                        onClick={() => refresh()}
                         disabled={refreshing}
                         className="w-full py-2.5 bg-primary text-white text-[13px] font-bold rounded-full hover:bg-primary/90 transition-all shadow-sm flex items-center justify-center gap-2"
                     >
@@ -104,10 +47,11 @@ export function TokenList() {
                     </button>
                     <button
                         onClick={async () => {
+                            if (!publicKey) return;
                             try {
                                 const tx = await connection.requestAirdrop(publicKey, 2 * 1e9);
                                 await connection.confirmTransaction(tx);
-                                fetchTokens();
+                                refresh();
                             } catch (e) {
                                 alert("Airdrop failed. Please try again in a minute.");
                             }
@@ -128,7 +72,7 @@ export function TokenList() {
                     Showing {tokens.length} Assets
                 </div>
                 <button
-                    onClick={() => fetchTokens(true)}
+                    onClick={() => refreshSilent()}
                     className="p-1 hover:bg-[#f4f7f9] rounded-full transition-all"
                     title="Refresh list"
                 >
@@ -148,7 +92,7 @@ export function TokenList() {
                                 "w-10 h-10 rounded-full flex items-center justify-center font-extrabold text-sm shadow-sm",
                                 token.isNative ? "bg-black text-white" : "bg-primary/10 text-primary"
                             )}>
-                                {token.isNative ? "SOL" : token.mint.slice(0, 1).toUpperCase()}
+                                {token.isNative ? "SOL" : (token.mint?.slice(0, 1).toUpperCase() || "T")}
                             </div>
                             <div className="flex flex-col">
                                 <span className="font-bold text-[15px] text-foreground tracking-tight">

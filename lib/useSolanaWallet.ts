@@ -1,7 +1,7 @@
 "use client";
 
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
-import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
+import { TOKEN_PROGRAM_ID, TOKEN_2022_PROGRAM_ID } from "@solana/spl-token";
 import { useEffect, useState, useCallback } from "react";
 
 export interface TokenAccount {
@@ -25,7 +25,7 @@ export function useSolanaWallet() {
         else setRefreshing(true);
 
         try {
-            // Fetch Native SOL
+            // 1. Fetch Native SOL
             const solBalance = await connection.getBalance(publicKey);
             const nativeSol: TokenAccount = {
                 mint: "So11111111111111111111111111111111111111112",
@@ -35,13 +35,21 @@ export function useSolanaWallet() {
                 isNative: true
             };
 
-            // Fetch SPL Tokens
-            const accounts = await connection.getParsedTokenAccountsByOwner(
+            // 2. Fetch standard SPL Tokens (Token Program)
+            const standardAccounts = await connection.getParsedTokenAccountsByOwner(
                 publicKey,
                 { programId: TOKEN_PROGRAM_ID }
             );
 
-            const parsedTokens = accounts.value.map((account) => {
+            // 3. Fetch Token-2022 Tokens (Token Extensions - used by many new tokens)
+            const token2022Accounts = await connection.getParsedTokenAccountsByOwner(
+                publicKey,
+                { programId: TOKEN_2022_PROGRAM_ID }
+            );
+
+            const allAccounts = [...standardAccounts.value, ...token2022Accounts.value];
+
+            const parsedTokens = allAccounts.map((account) => {
                 const parsedInfo = account.account.data.parsed.info;
                 return {
                     mint: parsedInfo.mint,
@@ -51,6 +59,7 @@ export function useSolanaWallet() {
                 };
             }).filter(t => t.balance > 0);
 
+            // Combine and sort
             setTokens([nativeSol, ...parsedTokens]);
         } catch (error) {
             console.error("Error fetching solana assets:", error);

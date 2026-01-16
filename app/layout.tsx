@@ -3,6 +3,7 @@ import { Geist, Geist_Mono, Outfit } from "next/font/google";
 import "./globals.css";
 import { SolanaProvider } from "@/components/SolanaProvider";
 import { Sidebar } from "@/components/Sidebar";
+import { Footer } from "@/components/Footer";
 import { PriceProvider } from "@/lib/PriceProvider";
 import { PlaygroundProvider } from "@/lib/PlaygroundContext";
 
@@ -42,15 +43,18 @@ export default function RootLayout({
         <SolanaProvider>
           <PriceProvider>
             <PlaygroundProvider>
-              <div className="flex bg-white text-foreground">
-                <aside className="sticky top-0 h-screen w-64 flex-shrink-0 border-r border-border bg-white">
-                  <Sidebar />
-                </aside>
-                <main className="flex-1 min-h-screen overflow-x-hidden">
-                  <div className="container mx-auto p-8 max-w-6xl">
-                    {children}
-                  </div>
-                </main>
+              <div className="flex flex-col bg-white text-foreground">
+                <div className="flex flex-1">
+                  <aside className="sticky top-0 h-screen w-64 flex-shrink-0 border-r border-border bg-white">
+                    <Sidebar />
+                  </aside>
+                  <main className="flex-1 min-h-screen overflow-x-hidden">
+                    <div className="container mx-auto p-8 max-w-6xl">
+                      {children}
+                    </div>
+                  </main>
+                </div>
+                <Footer />
               </div>
             </PlaygroundProvider>
           </PriceProvider>

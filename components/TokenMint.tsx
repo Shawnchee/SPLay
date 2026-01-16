@@ -312,7 +312,12 @@ export function TokenMint() {
 
             <div className="space-y-4 border border-border rounded-xl overflow-hidden divide-y divide-border">
                 <div className="p-4 flex items-center justify-between hover:bg-[#f4f7f9] transition-all cursor-pointer group">
-                    <div className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider group-hover:text-foreground transition-colors">Name</div>
+                    <div className="flex items-center gap-2">
+                        <div className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider group-hover:text-foreground transition-colors text-left">Name</div>
+                        <Tooltip content="The full display name of your token (e.g., 'Solana' or 'My Token'). This is what users will see in most wallets.">
+                            <Info className="w-3 h-3 text-muted-foreground" />
+                        </Tooltip>
+                    </div>
                     <input
                         value={formData.name}
                         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
@@ -321,7 +326,12 @@ export function TokenMint() {
                     />
                 </div>
                 <div className="p-4 flex items-center justify-between hover:bg-[#f4f7f9] transition-all cursor-pointer group">
-                    <div className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider group-hover:text-foreground transition-colors">Symbol</div>
+                    <div className="flex items-center gap-2">
+                        <div className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider group-hover:text-foreground transition-colors text-left">Symbol</div>
+                        <Tooltip content="A 3-5 character shorthand for your token (e.g., SOL, USDC, SPLAY).">
+                            <Info className="w-3 h-3 text-muted-foreground" />
+                        </Tooltip>
+                    </div>
                     <input
                         value={formData.symbol}
                         onChange={(e) => setFormData({ ...formData, symbol: e.target.value })}

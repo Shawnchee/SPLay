@@ -1,140 +1,201 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import {
-    Gem,
-    ArrowUpCircle,
-    Clock,
-    Zap,
-    HelpCircle,
-    Loader2,
-    Gift,
-    Lock
-} from "lucide-react";
+import { useState } from "react";
+import { usePlayground } from "@/lib/PlaygroundContext";
 import { useSolanaWallet } from "@/lib/useSolanaWallet";
-import { Tooltip } from "@/components/Tooltip";
+import {
+    Trophy,
+    Lock,
+    Coins,
+    TrendingUp,
+    History,
+    Loader2,
+    Info,
+    ArrowRight,
+    Gift
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export function StakingSim() {
-    const { tokens } = useSolanaWallet();
-    const [stakedAmount, setStakedAmount] = useState<number>(0);
-    const [rewards, setRewards] = useState<number>(0);
-    const [isStaking, setIsStaking] = useState(false);
-    const [loading, setLoading] = useState(false);
+    const { publicKey } = useSolanaWallet();
+    const { state, updateStaked, claimRewards } = usePlayground();
 
-    // Simulate rewards accumulation
-    useEffect(() => {
-        let interval: NodeJS.Timeout;
-        if (stakedAmount > 0) {
-            interval = setInterval(() => {
-                setRewards(prev => prev + (stakedAmount * 0.0001));
-            }, 1000);
-        }
-        return () => clearInterval(interval);
-    }, [stakedAmount]);
+    const [amount, setAmount] = useState<string>("10");
+    const [loading, setLoading] = useState(false);
+    const [logs, setLogs] = useState<{ msg: string, type: 'info' | 'success' | 'error' }[]>([]);
+
+    const addLog = (msg: string, type: 'info' | 'success' | 'error' = 'info') => {
+        setLogs(prev => [{ msg, type }, ...prev.slice(0, 4)]);
+    };
 
     const handleStake = async () => {
+        if (!publicKey) return;
         setLoading(true);
-        await new Promise(r => setTimeout(r, 1500));
-        setStakedAmount(100); // Fixed amount for simulation
-        setIsStaking(true);
-        setLoading(false);
+        try {
+            addLog("Executing Stake instruction...");
+            await new Promise(r => setTimeout(r, 1500));
+            updateStaked(state.stakedAmount + Number(amount));
+            addLog(`Successfully staked ${amount} SOL!`, "success");
+        } catch (e: any) {
+            addLog("Stake failed: " + e.message, "error");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleUnstake = async () => {
+        setLoading(true);
+        try {
+            addLog("Preparing Unstake transaction...");
+            await new Promise(r => setTimeout(r, 1500));
+            updateStaked(0);
+            addLog("Successfully unstaked and claimed principal!", "success");
+        } catch (e: any) {
+            addLog("Unstake failed: " + e.message, "error");
+        } finally {
+            setLoading(false);
+        }
     };
 
     const handleClaim = async () => {
         setLoading(true);
-        await new Promise(r => setTimeout(r, 1000));
-        setRewards(0);
-        setLoading(false);
+        try {
+            addLog("Claiming accrued rewards from vault...");
+            await new Promise(r => setTimeout(r, 1000));
+            claimRewards();
+            addLog("Rewards claimed successfully!", "success");
+        } catch (e: any) {
+            addLog("Claim failed: " + e.message, "error");
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
         <div className="space-y-6">
-            <div className="bg-card p-6 rounded-2xl border shadow-sm space-y-6">
-                <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-purple-500/10 flex items-center justify-center">
-                        <Gem className="w-5 h-5 text-purple-600" />
-                    </div>
-                    <div>
-                        <h3 className="font-bold text-lg">Staking & Rewards</h3>
-                        <p className="text-xs text-muted-foreground">Put your idle assets to work</p>
-                    </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="p-5 rounded-2xl bg-slate-50 border border-slate-100 flex flex-col justify-between min-h-[140px]">
-                        <div className="flex justify-between items-start">
-                            <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Staked Balance</span>
-                            <Lock className="w-3.5 h-3.5 text-slate-400" />
+            <div className="bg-card p-6 rounded-3xl border shadow-sm space-y-8 relative overflow-hidden">
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-2xl bg-purple-500/10 flex items-center justify-center">
+                            <Trophy className="w-6 h-6 text-purple-600" />
                         </div>
                         <div>
-                            <span className="text-3xl font-black">{stakedAmount.toLocaleString()}</span>
-                            <span className="ml-1.5 text-xs font-bold text-muted-foreground uppercase">Tokens</span>
-                        </div>
-                    </div>
-
-                    <div className="p-5 rounded-2xl bg-purple-50/50 border border-purple-100 flex flex-col justify-between min-h-[140px]">
-                        <div className="flex justify-between items-start">
-                            <span className="text-[10px] font-bold text-purple-600 uppercase tracking-widest">Unclaimed Rewards</span>
-                            <Zap className="w-3.5 h-3.5 text-purple-400" />
-                        </div>
-                        <div>
-                            <span className="text-3xl font-black text-purple-600">{rewards.toFixed(4)}</span>
-                            <span className="ml-1.5 text-xs font-bold text-purple-400 uppercase">Tokens</span>
+                            <h3 className="text-xl font-black">Proof of Stake</h3>
+                            <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Lock Assets • Secure Network • Earn Yield</p>
                         </div>
                     </div>
                 </div>
 
-                <div className="space-y-4">
-                    {!isStaking ? (
-                        <div className="space-y-4">
-                            <div className="flex items-center gap-2 text-xs font-bold text-muted-foreground">
-                                <HelpCircle className="w-3 h-3" />
-                                <span>Why Stake?</span>
-                                <p className="font-normal text-[11px] text-muted-foreground leading-tight italic">
-                                    "Staking is the act of locking up your tokens to help secure the network. In return, the network (or protocol) rewards you with fresh tokens."
-                                </p>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div className="space-y-6">
+                        <div className="p-4 bg-slate-50 border border-slate-100 rounded-2xl flex items-center justify-between">
+                            <div className="space-y-1">
+                                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Yield Earned</p>
+                                <p className="text-xl font-black text-green-600">+{state.stakingRewards.toFixed(4)} <span className="text-xs">SOL</span></p>
                             </div>
                             <button
-                                onClick={handleStake}
-                                disabled={loading}
-                                className="w-full h-14 bg-purple-600 text-white rounded-2xl font-black text-lg hover:bg-purple-700 transition-all shadow-lg flex items-center justify-center gap-2"
-                            >
-                                {loading ? <Loader2 className="w-6 h-6 animate-spin" /> : "Stake 100 Tokens to Earn 10% APY"}
-                            </button>
-                        </div>
-                    ) : (
-                        <div className="grid grid-cols-2 gap-3">
-                            <button
                                 onClick={handleClaim}
-                                disabled={loading || rewards === 0}
-                                className="h-12 bg-white border border-purple-200 text-purple-600 rounded-xl font-bold hover:bg-purple-50 transition-all flex items-center justify-center gap-2"
+                                disabled={state.stakingRewards === 0 || loading}
+                                className="bg-green-600 text-white text-xs font-bold px-4 py-2 rounded-xl hover:bg-green-700 disabled:opacity-50 transition-all shadow-sm"
                             >
-                                {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Gift className="w-4 h-4" />}
-                                Claim Rewards
-                            </button>
-                            <button
-                                onClick={() => { setStakedAmount(0); setIsStaking(false); setRewards(0); }}
-                                className="h-12 bg-slate-100 text-slate-600 rounded-xl font-bold hover:bg-slate-200 transition-all flex items-center justify-center gap-2"
-                            >
-                                Unstake All
+                                <Gift className="w-3.5 h-3.5 inline mr-1" />
+                                Claim
                             </button>
                         </div>
-                    )}
-                </div>
 
-                <div className="space-y-3">
-                    <h4 className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest px-1">How it works on Solana</h4>
-                    <div className="grid grid-cols-1 gap-2">
-                        <div className="p-3 bg-white border rounded-xl flex items-center gap-3">
-                            <div className="bg-slate-50 p-2 rounded-lg"><ArrowUpCircle className="w-4 h-4 text-slate-400" /></div>
-                            <p className="text-[11px] leading-tight"><span className="font-extrabold uppercase text-[10px] block mb-0.5">Epochs</span> Rewards are usually distributed every "Epoch" (about 2-3 days on Solana).</p>
-                        </div>
-                        <div className="p-3 bg-white border rounded-xl flex items-center gap-3">
-                            <div className="bg-slate-50 p-2 rounded-lg"><Clock className="w-4 h-4 text-slate-400" /></div>
-                            <p className="text-[11px] leading-tight"><span className="font-extrabold uppercase text-[10px] block mb-0.5">Warmup</span> Many protocols have a "Warmup" period before you start earning.</p>
+                        {state.stakedAmount === 0 ? (
+                            <div className="space-y-4">
+                                <div className="space-y-1.5">
+                                    <label className="text-[10px] font-black text-muted-foreground uppercase tracking-wider ml-1">Stake Amount (SOL)</label>
+                                    <div className="relative">
+                                        <input
+                                            type="number"
+                                            value={amount}
+                                            onChange={(e) => setAmount(e.target.value)}
+                                            className="w-full h-14 bg-white border-2 border-slate-100 rounded-2xl px-4 font-black text-lg focus:border-primary/20 outline-none transition-all"
+                                        />
+                                        <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-black text-muted-foreground uppercase">SOL</span>
+                                    </div>
+                                </div>
+                                <button
+                                    onClick={handleStake}
+                                    disabled={!publicKey || loading}
+                                    className="w-full h-14 bg-primary text-white rounded-2xl font-black text-lg shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 flex items-center justify-center gap-3"
+                                >
+                                    {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Lock className="w-5 h-5" />}
+                                    Stake Solana
+                                </button>
+                            </div>
+                        ) : (
+                            <div className="p-6 bg-purple-500/5 border-2 border-purple-500/10 rounded-3xl space-y-4 animate-in zoom-in-95 duration-300">
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-10 h-10 rounded-full bg-purple-500/10 flex items-center justify-center">
+                                            <Trophy className="w-5 h-5 text-purple-600" />
+                                        </div>
+                                        <div>
+                                            <p className="text-sm font-black">{state.stakedAmount} SOL Staked</p>
+                                            <p className="text-[10px] text-muted-foreground font-medium uppercase">Active Validator Support</p>
+                                        </div>
+                                    </div>
+                                    <button
+                                        onClick={handleUnstake}
+                                        disabled={loading}
+                                        className="text-xs font-bold text-red-600 hover:underline"
+                                    >
+                                        Unstake Principal
+                                    </button>
+                                </div>
+                                <div className="h-1 bg-purple-100 rounded-full overflow-hidden">
+                                    <div className="h-full bg-purple-500 animate-pulse w-full" />
+                                </div>
+                            </div>
+                        )}
+                    </div>
+
+                    <div className="bg-slate-50 p-6 rounded-3xl border border-slate-100 space-y-4">
+                        <h4 className="text-[10px] font-black text-muted-foreground uppercase tracking-widest flex items-center gap-2">
+                            <History className="w-3.5 h-3.5" />
+                            Program Logs
+                        </h4>
+                        <div className="space-y-2">
+                            {logs.length === 0 ? (
+                                <p className="text-xs text-slate-400 italic py-8 text-center">No transactions yet.</p>
+                            ) : (
+                                logs.map((log, i) => (
+                                    <div key={i} className={cn(
+                                        "p-3 rounded-xl border text-[11px] font-bold transition-all animate-in slide-in-from-left-2",
+                                        log.type === 'success' ? "bg-green-500/5 border-green-500/10 text-green-700" :
+                                            log.type === 'error' ? "bg-red-500/5 border-red-500/10 text-red-700" :
+                                                "bg-white border-slate-200 text-slate-600"
+                                    )}>
+                                        {log.msg}
+                                    </div>
+                                ))
+                            )}
                         </div>
                     </div>
+                </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="p-5 bg-white border rounded-2xl space-y-2">
+                    <h5 className="text-[11px] font-black text-muted-foreground uppercase tracking-widest flex items-center gap-2">
+                        <TrendingUp className="w-3.5 h-3.5" />
+                        What is APY?
+                    </h5>
+                    <p className="text-xs text-muted-foreground leading-relaxed">
+                        Annual Percentage Yield (APY) represents the real rate of return earned on an investment, taking into account the effect of compounding interest.
+                    </p>
+                </div>
+                <div className="p-5 bg-white border rounded-2xl space-y-2">
+                    <h5 className="text-[11px] font-black text-muted-foreground uppercase tracking-widest flex items-center gap-2">
+                        <Coins className="w-3.5 h-3.5" />
+                        Liquid Staking
+                    </h5>
+                    <p className="text-xs text-muted-foreground leading-relaxed">
+                        In a real DeFi app, you might receive a "Receipt Token" (like mSOL or JitoSOL) that you can use in other apps while your SOL stays staked.
+                    </p>
                 </div>
             </div>
         </div>

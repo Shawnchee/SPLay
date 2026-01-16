@@ -14,6 +14,7 @@ import {
     ArrowDownUp,
     Boxes
 } from "lucide-react";
+import { Tooltip } from "@/components/Tooltip";
 import { cn } from "@/lib/utils";
 
 export function LiquiditySim() {
@@ -55,9 +56,11 @@ export function LiquiditySim() {
             <div className="bg-card p-6 rounded-3xl border shadow-sm space-y-8 relative overflow-hidden">
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-2xl bg-blue-500/10 flex items-center justify-center">
-                            <Droplets className="w-6 h-6 text-blue-600" />
-                        </div>
+                        <Tooltip content="Liquidity Pools allow users to trade tokens instantly by using a pool of assets provided by people like you, rather than waiting for a direct buyer/seller.">
+                            <div className="w-12 h-12 rounded-2xl bg-blue-500/10 flex items-center justify-center cursor-help">
+                                <Droplets className="w-6 h-6 text-blue-600" />
+                            </div>
+                        </Tooltip>
                         <div>
                             <h3 className="text-xl font-black">Liquidity Pools</h3>
                             <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Provide Liquidity • Enable Swaps • Earn Fees</p>

@@ -21,6 +21,7 @@ import {
     Scale,
     ArrowDownRight
 } from "lucide-react";
+import { Tooltip } from "@/components/Tooltip";
 import { cn } from "@/lib/utils";
 
 export function SigningSim() {
@@ -131,7 +132,9 @@ export function SigningSim() {
                     <div className="space-y-4">
                         <div className="flex items-center gap-2 mb-2">
                             <div className="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center text-[10px] font-black">1</div>
-                            <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Pre-flight Safety</span>
+                            <Tooltip content="Simulation runs your transaction against the current blockchain state without actually submitting it. It's like a 'dry run' to catch errors.">
+                                <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground cursor-help">Pre-flight Safety</span>
+                            </Tooltip>
                         </div>
 
                         <div className="p-5 bg-slate-50 border border-slate-100 rounded-2xl space-y-4">
@@ -183,7 +186,9 @@ export function SigningSim() {
                     <div className="space-y-4">
                         <div className="flex items-center gap-2 mb-2">
                             <div className="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center text-[10px] font-black">2</div>
-                            <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Serialization</span>
+                            <Tooltip content="Transactions must be converted into a binary format (Serialized) so the network nodes can understand and execute the instructions.">
+                                <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground cursor-help">Serialization</span>
+                            </Tooltip>
                         </div>
 
                         <div className="p-5 bg-slate-900 rounded-2xl h-[280px] flex flex-col">
@@ -207,7 +212,9 @@ export function SigningSim() {
                     <div className="space-y-4">
                         <div className="flex items-center gap-2 mb-2">
                             <div className="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center text-[10px] font-black">3</div>
-                            <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Authorization</span>
+                            <Tooltip content="Signing provides a cryptographic proof that you (the owner of the private key) authorized this specific transaction message.">
+                                <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground cursor-help">Authorization</span>
+                            </Tooltip>
                         </div>
 
                         <div className="p-5 bg-card border-2 border-dashed border-slate-200 rounded-3xl h-[280px] flex flex-col items-center justify-center text-center space-y-6">

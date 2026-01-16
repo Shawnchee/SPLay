@@ -37,9 +37,9 @@ export function SubscriptionSim() {
     };
 
     const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text);
-    setCopied(text);
-    setTimeout(() => setCopied(null), 2000);
+        navigator.clipboard.writeText(text);
+        setCopied(text);
+        setTimeout(() => setCopied(null), 2000);
     };
 
     const initSimWallet = async () => {
@@ -90,9 +90,11 @@ export function SubscriptionSim() {
                 <div className="space-y-4">
                     <div className="bg-card p-6 rounded-2xl border shadow-sm space-y-4">
                         <div className="flex items-center gap-3 mb-2">
-                            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                                <ShieldCheck className="w-5 h-5 text-primary" />
-                            </div>
+                            <Tooltip content="Proof-of-Concept for automated billing on Solana. Unlike regular transfers, this demo shows how a service can 'pull' funds if you delegate authority.">
+                                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center cursor-help">
+                                    <ShieldCheck className="w-5 h-5 text-primary" />
+                                </div>
+                            </Tooltip>
                             <div>
                                 <h3 className="font-bold text-lg">Subscription Simulator</h3>
                                 <p className="text-xs text-muted-foreground">Master "Pull Payments" via Delegation</p>
@@ -177,7 +179,7 @@ export function SubscriptionSim() {
                                     <div className="p-2 bg-white rounded-lg font-mono text-[10px] break-all select-all flex items-center justify-between gap-2">
                                         {PLAYGROUND_SERVICE_WALLET.publicKey.toBase58()}
                                         <button
-                                            onClick={() => copyToClipboard(PLAYGROUND_SERVICE_WALLET.publicKey.toBase58()   )}
+                                            onClick={() => copyToClipboard(PLAYGROUND_SERVICE_WALLET.publicKey.toBase58())}
                                             className="text-muted-foreground hover:text-primary transition-colors cursor-pointer"
                                         >
                                             {copied === PLAYGROUND_SERVICE_WALLET.publicKey.toBase58() ? (

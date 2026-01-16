@@ -14,6 +14,7 @@ import {
     ArrowRight,
     Gift
 } from "lucide-react";
+import { Tooltip } from "@/components/Tooltip";
 import { cn } from "@/lib/utils";
 
 export function StakingSim() {
@@ -76,9 +77,11 @@ export function StakingSim() {
             <div className="bg-card p-6 rounded-3xl border shadow-sm space-y-8 relative overflow-hidden">
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-2xl bg-purple-500/10 flex items-center justify-center">
-                            <Trophy className="w-6 h-6 text-purple-600" />
-                        </div>
+                        <Tooltip content="Staking involves locking your SOL to help validators process transactions. In return, the network gives you inflationary rewards.">
+                            <div className="w-12 h-12 rounded-2xl bg-purple-500/10 flex items-center justify-center cursor-help">
+                                <Trophy className="w-6 h-6 text-purple-600" />
+                            </div>
+                        </Tooltip>
                         <div>
                             <h3 className="text-xl font-black">Proof of Stake</h3>
                             <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Lock Assets • Secure Network • Earn Yield</p>
@@ -93,14 +96,16 @@ export function StakingSim() {
                                 <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Yield Earned</p>
                                 <p className="text-xl font-black text-green-600">+{state.stakingRewards.toFixed(4)} <span className="text-xs">SOL</span></p>
                             </div>
-                            <button
-                                onClick={handleClaim}
-                                disabled={state.stakingRewards === 0 || loading}
-                                className="bg-green-600 text-white text-xs font-bold px-4 py-2 rounded-xl hover:bg-green-700 disabled:opacity-50 transition-all shadow-sm"
-                            >
-                                <Gift className="w-3.5 h-3.5 inline mr-1" />
-                                Claim
-                            </button>
+                            <Tooltip content="Claiming transfers your earned staking rewards from the staking program back into your available wallet balance.">
+                                <button
+                                    onClick={handleClaim}
+                                    disabled={state.stakingRewards === 0 || loading}
+                                    className="bg-green-600 text-white text-xs font-bold px-4 py-2 rounded-xl hover:bg-green-700 disabled:opacity-50 transition-all shadow-sm"
+                                >
+                                    <Gift className="w-3.5 h-3.5 inline mr-1" />
+                                    Claim
+                                </button>
+                            </Tooltip>
                         </div>
 
                         {state.stakedAmount === 0 ? (

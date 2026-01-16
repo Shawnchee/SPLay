@@ -6,13 +6,10 @@ import {
     PublicKey,
     Transaction,
     SystemProgram,
-    LAMPORTS_PER_SOL,
-    VersionedTransaction,
-    Message
+    LAMPORTS_PER_SOL
 } from "@solana/web3.js";
 import {
     Fingerprint,
-    Send,
     Eye,
     Code2,
     ShieldCheck,
@@ -20,10 +17,11 @@ import {
     Loader2,
     Info,
     AlertCircle,
-    CheckCircle2
+    CheckCircle2,
+    Scale,
+    ArrowDownRight
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Tooltip } from "@/components/Tooltip";
 
 export function SigningSim() {
     const { connection } = useConnection();
@@ -34,6 +32,8 @@ export function SigningSim() {
         message?: string;
         signature?: string;
         simulationResults?: any;
+        preBalance?: number;
+        postBalance?: number;
     }>({});
     const [error, setError] = useState<string | null>(null);
 
@@ -58,19 +58,24 @@ export function SigningSim() {
 
             // Serialize for display
             const serialized = transaction.serializeMessage().toString('hex');
-            setTxData(prev => ({ ...prev, message: serialized }));
 
             // 2. Simulate
             setStatus('simulating');
             const simulation = await connection.simulateTransaction(transaction);
+            const currentBalance = await connection.getBalance(publicKey);
 
             if (simulation.value.err) {
                 setError("Simulation Failed: " + JSON.stringify(simulation.value.err));
             } else {
-                setTxData(prev => ({ ...prev, simulationResults: simulation.value }));
+                setTxData({
+                    message: serialized,
+                    simulationResults: simulation.value,
+                    preBalance: currentBalance / LAMPORTS_PER_SOL,
+                    postBalance: (currentBalance / LAMPORTS_PER_SOL) - 0.100005 // Approx with fee
+                });
             }
 
-            setStatus('idle'); // Back to idle after sim
+            setStatus('idle');
         } catch (e: any) {
             setError(e.message);
             setStatus('idle');
@@ -109,7 +114,6 @@ export function SigningSim() {
     return (
         <div className="space-y-6">
             <div className="bg-card p-6 rounded-3xl border shadow-sm space-y-8 relative overflow-hidden">
-                {/* Header */}
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">
                         <div className="w-12 h-12 rounded-2xl bg-orange-500/10 flex items-center justify-center">
@@ -127,12 +131,12 @@ export function SigningSim() {
                     <div className="space-y-4">
                         <div className="flex items-center gap-2 mb-2">
                             <div className="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center text-[10px] font-black">1</div>
-                            <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Pre-flight</span>
+                            <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Pre-flight Safety</span>
                         </div>
 
                         <div className="p-5 bg-slate-50 border border-slate-100 rounded-2xl space-y-4">
                             <p className="text-xs text-muted-foreground leading-relaxed">
-                                Build a transaction to transfer <b>0.1 SOL</b> to a burn address. Before signing, we'll run a "Simulation" to check for errors.
+                                Build a transaction to transfer <b>0.1 SOL</b>. We'll run a "Simulation" to check for errors and balance impacts.
                             </p>
                             <button
                                 onClick={handleSimulation}
@@ -149,19 +153,26 @@ export function SigningSim() {
                         </div>
 
                         {txData.simulationResults && (
-                            <div className="p-4 bg-green-500/5 border border-green-500/10 rounded-2xl animate-in zoom-in-95 duration-300">
-                                <div className="flex items-center gap-2 mb-2">
-                                    <CheckCircle2 className="w-3.5 h-3.5 text-green-600" />
-                                    <span className="text-[10px] font-black text-green-700 uppercase">Simulation Passed</span>
+                            <div className="p-4 bg-green-500/5 border border-green-500/10 rounded-2xl animate-in zoom-in-95 duration-300 space-y-3">
+                                <div className="flex items-center gap-2">
+                                    <Scale className="w-3.5 h-3.5 text-green-600" />
+                                    <span className="text-[10px] font-black text-green-700 uppercase">Balance Change Info</span>
                                 </div>
-                                <div className="space-y-1.5">
-                                    <div className="flex justify-between text-[11px]">
-                                        <span className="text-muted-foreground">Compute Units:</span>
-                                        <span className="font-mono font-bold text-green-700">{txData.simulationResults.unitsConsumed}</span>
+                                <div className="flex items-center justify-between">
+                                    <div className="flex flex-col">
+                                        <span className="text-[9px] font-bold text-slate-400 uppercase">Pre</span>
+                                        <span className="text-xs font-black">{txData.preBalance?.toFixed(2)} SOL</span>
                                     </div>
-                                    <div className="flex justify-between text-[11px]">
-                                        <span className="text-muted-foreground">Account Changes:</span>
-                                        <span className="font-mono font-bold text-green-700">2</span>
+                                    <ArrowDownRight className="w-4 h-4 text-slate-300" />
+                                    <div className="flex flex-col text-right">
+                                        <span className="text-[9px] font-bold text-slate-400 uppercase">Post</span>
+                                        <span className="text-xs font-black text-red-600">{txData.postBalance?.toFixed(4)} SOL</span>
+                                    </div>
+                                </div>
+                                <div className="pt-2 border-t border-green-500/10">
+                                    <div className="flex justify-between text-[10px]">
+                                        <span className="text-muted-foreground">Network Fee:</span>
+                                        <span className="font-mono font-bold text-green-700">≈ 0.000005 SOL</span>
                                     </div>
                                 </div>
                             </div>
@@ -178,15 +189,15 @@ export function SigningSim() {
                         <div className="p-5 bg-slate-900 rounded-2xl h-[280px] flex flex-col">
                             <div className="flex items-center gap-2 mb-3 text-slate-400">
                                 <Code2 className="w-4 h-4" />
-                                <span className="text-[10px] font-bold uppercase tracking-widest">Raw Transaction Message</span>
+                                <span className="text-[10px] font-bold uppercase tracking-widest">Hex Message Pool</span>
                             </div>
-                            <div className="flex-1 overflow-y-auto font-mono text-[10px] text-orange-400/80 break-all leading-relaxed p-2 bg-black/30 rounded-lg border border-white/5">
+                            <div className="flex-1 overflow-y-auto font-mono text-[9px] text-orange-400/80 break-all leading-relaxed p-2 bg-black/30 rounded-lg border border-white/5 thin-scrollbar">
                                 {txData.message || "// Message will appear here..."}
                             </div>
                             <div className="mt-4 p-3 bg-white/5 rounded-xl flex items-start gap-3">
                                 <Info className="w-4 h-4 text-slate-400 flex-shrink-0 mt-0.5" />
                                 <p className="text-[10px] text-slate-400 leading-tight">
-                                    Your wallet doesn't sign the "Transaction" object directly. It signs this <b>Serialized Message</b>.
+                                    This binary blob is what your wallet <b>actually</b> signs. It contains the instruction data and account indices.
                                 </p>
                             </div>
                         </div>
@@ -206,8 +217,8 @@ export function SigningSim() {
                                         <ShieldCheck className="w-8 h-8 text-green-600" />
                                     </div>
                                     <div>
-                                        <h4 className="font-bold">Cryptographic Proof</h4>
-                                        <p className="text-[10px] text-muted-foreground break-all px-4 font-mono mt-2">
+                                        <h4 className="font-bold text-sm">Valid Cryptographic Proof</h4>
+                                        <p className="text-[10px] text-muted-foreground break-all px-4 font-mono mt-2 bg-slate-50 p-2 rounded-lg border">
                                             {txData.signature}
                                         </p>
                                     </div>
@@ -224,9 +235,9 @@ export function SigningSim() {
                                         <Fingerprint className={cn("w-8 h-8 text-primary", status === 'signing' && "animate-pulse")} />
                                     </div>
                                     <div className="space-y-2">
-                                        <h4 className="font-bold">Sign the Message</h4>
-                                        <p className="text-[11px] text-muted-foreground leading-relaxed px-4">
-                                            Your private key will produce a 64-byte signature unique to your wallet and this message.
+                                        <h4 className="font-bold text-sm">Sign the Message</h4>
+                                        <p className="text-[10px] text-muted-foreground leading-relaxed px-4">
+                                            Your wallet will generate an Ed25519 signature. This proves ownership without revealing your keys.
                                         </p>
                                     </div>
                                     <button
@@ -249,22 +260,6 @@ export function SigningSim() {
                         <span className="text-xs font-bold">{error}</span>
                     </div>
                 )}
-            </div>
-
-            {/* Technical Breakdown */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="p-5 bg-white border rounded-2xl space-y-2">
-                    <h5 className="text-[11px] font-black text-muted-foreground uppercase tracking-widest">Why Simulate?</h5>
-                    <p className="text-xs text-muted-foreground leading-relaxed">
-                        On Solana, running <code className="bg-slate-100 px-1 rounded">simulateTransaction</code> is free. It allows you to see if a transaction will fail (e.g. insufficient funds) or if it's been tampered with before you ever touch your private key.
-                    </p>
-                </div>
-                <div className="p-5 bg-white border rounded-2xl space-y-2">
-                    <h5 className="text-[11px] font-black text-muted-foreground uppercase tracking-widest">What is a Message?</h5>
-                    <p className="text-xs text-muted-foreground leading-relaxed">
-                        A Solana transaction contains a <b>Message Header</b>, <b>Account Addresses</b>, and <b>Instructions</b>. This bloat of hex values on the right is the byte-perfect representation of those fields.
-                    </p>
-                </div>
             </div>
         </div>
     );

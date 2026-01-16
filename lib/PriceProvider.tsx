@@ -25,7 +25,7 @@ export function PriceProvider({ children }: { children: React.ReactNode }) {
         const fetchPyth = async () => {
             try {
                 // SOL/USD Price ID for Pyth
-                const priceId = "ef0d8b6fda2ceba41da15d409211cda310a00d503893e360e427a92f150829ef";
+                const priceId = "ef0d8b6fda2ceba41da15d4095d1da392a0d2f8ed0c6c7bc0f4cfac8c280b56d";
                 const response = await fetch(`https://hermes.pyth.network/v2/updates/price/latest?ids[]=${priceId}`);
                 if (response.ok) {
                     const data = await response.json();
@@ -54,7 +54,9 @@ export function PriceProvider({ children }: { children: React.ReactNode }) {
         const interval = setInterval(() => {
             setPrices(prev => {
                 const next = { ...prev };
+                const SOL_MINT = "So11111111111111111111111111111111111111112";
                 Object.keys(next).forEach(mint => {
+                    if (mint === SOL_MINT) return; // SOL stay synced with Pyth only
                     const volatility = 0.001; // 0.1% change
                     const change = 1 + (Math.random() * volatility * 2 - volatility);
                     next[mint] = next[mint] * change;

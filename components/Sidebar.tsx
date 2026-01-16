@@ -23,7 +23,7 @@ export function Sidebar() {
                     <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center shadow-sm">
                         <span className="text-white font-extrabold text-[10px] tracking-tighter">SOL</span>
                     </div>
-                    <span className="text-lg font-bold tracking-tight text-foreground">SPLay</span>
+                    <span className="text-lg font-bold tracking-tight text-foreground font-heading">SPLay</span>
                 </div>
             </div>
 

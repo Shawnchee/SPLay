@@ -15,7 +15,7 @@ export default function Home() {
       {/* Header with Search and Wallet */}
       <div className="flex items-center justify-between border-b border-border pb-8">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-foreground">Dashboard</h1>
+          <h1 className="text-3xl font-bold tracking-tight text-foreground font-heading">Dashboard</h1>
           <p className="text-sm text-muted-foreground font-medium">Manage your Devnet assets and tokens.</p>
         </div>
         <div className="flex items-center gap-4">

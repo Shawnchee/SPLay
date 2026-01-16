@@ -310,11 +310,6 @@ export function TokenMint() {
                 </div>
             </div>
 
-            <div className="flex flex-col items-center py-6">
-                <div className="text-5xl font-bold text-foreground tracking-tighter mb-2">0</div>
-                <div className="text-[11px] font-bold text-muted-foreground uppercase tracking-[0.2em]">SPT</div>
-            </div>
-
             <div className="space-y-4 border border-border rounded-xl overflow-hidden divide-y divide-border">
                 <div className="p-4 flex items-center justify-between hover:bg-[#f4f7f9] transition-all cursor-pointer group">
                     <div className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider group-hover:text-foreground transition-colors">Name</div>

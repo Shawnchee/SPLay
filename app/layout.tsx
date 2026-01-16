@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Outfit } from "next/font/google";
 import "./globals.css";
 import { SolanaProvider } from "@/components/SolanaProvider";
 import { Sidebar } from "@/components/Sidebar";
@@ -16,6 +16,11 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const outfit = Outfit({
+  variable: "--font-outfit",
+  subsets: ["latin"],
+});
+
 export const metadata: Metadata = {
   title: "SPLay - Solana Devnet Playground",
   description: "Learn and experiment with SPL tokens safely on Solana devnet.",
@@ -29,7 +34,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-white selection:bg-primary/10`}
+        className={`${geistSans.variable} ${geistMono.variable} ${outfit.variable} antialiased bg-white selection:bg-primary/10`}
       >
         <SolanaProvider>
           <PriceProvider>

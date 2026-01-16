@@ -32,8 +32,8 @@ export default function PlaygroundPage() {
                         <Gamepad2 className="w-6 h-6 text-primary" />
                     </div>
                     <div>
-                        <h1 className="text-3xl font-black tracking-tight tracking-tight">DeFi Playground</h1>
-                        <p className="text-muted-foreground font-medium">Safe simulations to master Solana Web3 concepts.</p>
+                        <h1 className="text-3xl font-bold tracking-tight text-foreground font-heading">DeFi Playground</h1>
+                        <p className="text-sm text-muted-foreground font-medium">Safe simulations to master Solana Web3 concepts.</p>
                     </div>
                 </div>
 
@@ -54,7 +54,7 @@ export default function PlaygroundPage() {
                         key={m.id}
                         onClick={() => setActiveModule(m.id)}
                         className={cn(
-                            "flex-1 flex flex-col items-center gap-1 py-3 px-4 rounded-xl transition-all",
+                            "flex-1 flex flex-col items-center gap-1 py-3 px-4 rounded-xl transition-all cursor-pointer",
                             activeModule === m.id
                                 ? "bg-white shadow-sm text-primary ring-1 ring-primary/5"
                                 : "text-muted-foreground hover:bg-white/50 hover:text-foreground"

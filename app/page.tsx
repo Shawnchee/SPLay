@@ -40,7 +40,7 @@ export default function Home() {
               <span className="text-6xl font-bold font-sans tracking-tight text-foreground">
                 ${connected ? totalBalanceUSD.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "0.00"}
               </span>
-              <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">USD (Simulated)</span>
+              <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">USD (Live Price - Only Native SOL)</span>
             </div>
           </div>
 

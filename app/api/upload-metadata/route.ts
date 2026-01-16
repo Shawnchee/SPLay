@@ -30,8 +30,8 @@ export async function POST(req: NextRequest) {
             message: `Add icon for ${name}`,
             content: imageContent,
         });
-
-        const imageUrl = `https://raw.githubusercontent.com/${owner}/${repo}/main/${imagePath}`;
+        // https://github.com/Shawnchee/SPLay/blob/main/metadata/assets/dbc-1768551136938.png?raw=true
+        const imageUrl = `https://github.com/${owner}/${repo}/blob/main/${imagePath}?raw=true`;
 
         // 2. Upload Metadata JSON
         const metadata = {

@@ -24,6 +24,9 @@ const outfit = Outfit({
 export const metadata: Metadata = {
   title: "SPLay - Solana Devnet Playground",
   description: "Learn and experiment with SPL tokens safely on Solana devnet.",
+  icons: {
+    icon: "/SPLay-icon.svg",
+  },
 };
 
 export default function RootLayout({

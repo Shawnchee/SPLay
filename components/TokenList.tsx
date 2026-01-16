@@ -87,24 +87,28 @@ export function TokenList() {
                     >
                         <div className="flex items-center gap-4">
                             <div className={cn(
-                                "w-10 h-10 rounded-full flex items-center justify-center font-extrabold text-sm shadow-sm",
+                                "w-10 h-10 rounded-full flex items-center justify-center font-extrabold text-sm shadow-sm overflow-hidden",
                                 token.isNative ? "bg-black text-white" : "bg-primary/10 text-primary"
                             )}>
-                                {token.isNative ? "SOL" : (token.mint?.slice(0, 1).toUpperCase() || "T")}
+                                {token.image ? (
+                                    <img src={token.image} className="w-full h-full object-cover" alt={token.name || "Token"} />
+                                ) : (
+                                    token.symbol?.slice(0, 3) || (token.isNative ? "SOL" : (token.mint?.slice(0, 1).toUpperCase() || "T"))
+                                )}
                             </div>
                             <div className="flex flex-col">
                                 <span className="font-bold text-[15px] text-foreground tracking-tight">
-                                    {token.isNative ? "Solana" : `${token.mint.slice(0, 4)}...${token.mint.slice(-4)}`}
+                                    {token.name || (token.isNative ? "Solana" : `${token.mint.slice(0, 4)}...${token.mint.slice(-4)}`)}
                                 </span>
                                 <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
-                                    {token.isNative ? "Native Token" : `${token.decimals} Decimals`}
+                                    {token.isNative ? "Native Token" : (token.symbol ? `${token.symbol} • ${token.decimals} Decimals` : `${token.decimals} Decimals`)}
                                 </span>
                             </div>
                         </div>
                         <div className="flex items-center gap-12">
                             <div className="hidden md:block text-right">
                                 <div className="font-extrabold text-[15px] text-foreground">
-                                    {token.balance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 4 })} {token.isNative ? "SOL" : "Units"}
+                                    {token.balance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 4 })} {token.symbol || (token.isNative ? "SOL" : "Units")}
                                 </div>
                                 <div className="text-[11px] font-bold text-green-600 uppercase tracking-wide">
                                     Available

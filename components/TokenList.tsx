@@ -89,13 +89,30 @@ export function TokenList() {
                     >
                         <div className="flex items-center gap-4">
                             <div className={cn(
-                                "w-10 h-10 rounded-full flex items-center justify-center font-extrabold text-sm shadow-sm overflow-hidden",
+                                "w-10 h-10 rounded-full flex items-center justify-center font-extrabold text-sm shadow-sm overflow-hidden relative",
                                 token.isNative ? "bg-black text-white" : "bg-primary/10 text-primary"
                             )}>
-                                {token.image ? (
-                                    <img src={token.image} className="w-full h-full object-cover" alt={token.name || "Token"} />
-                                ) : (
-                                    token.symbol?.slice(0, 3) || (token.isNative ? "SOL" : (token.mint?.slice(0, 1).toUpperCase() || "T"))
+                                {/* Text Fallback (Underneath) */}
+                                <span className="absolute inset-0 flex items-center justify-center bg-inherit">
+                                    {token.symbol?.slice(0, 3) || (token.isNative ? "SOL" : (token.mint?.slice(0, 1).toUpperCase() || "T"))}
+                                </span>
+
+                                {/* Token Image (Top) */}
+                                {token.image && (
+                                    <img
+                                        src={token.image}
+                                        className="absolute inset-0 w-full h-full object-cover transition-opacity duration-300"
+                                        alt={token.name || "Token"}
+                                        onError={(e) => {
+                                            const target = e.currentTarget;
+                                            if (target.src.includes('raw.githubusercontent.com')) {
+                                                // Immediate fallback to broad github URL if raw CDN is lagging
+                                                target.src = target.src.replace('raw.githubusercontent.com', 'github.com').replace('/main/', '/blob/main/') + '?raw=true';
+                                            } else {
+                                                target.style.opacity = '0';
+                                            }
+                                        }}
+                                    />
                                 )}
                             </div>
                             <div className="flex flex-col">

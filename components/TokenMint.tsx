@@ -234,22 +234,24 @@ export function TokenMint() {
                 transaction.add(web3jsInstruction);
             }
 
-            // 5. Fetch the latest blockhash with 'confirmed' commitment for reliability
+            // 5. Fetch the latest blockhash
             const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash('confirmed');
             transaction.recentBlockhash = blockhash;
             transaction.feePayer = wallet.publicKey;
 
-            // 6. Partially sign with the Mint Keypair (since we're creating it)
+            // 6. Partially sign with the Mint Keypair
             transaction.partialSign(mintKeypair);
 
             // 7. Request wallet signature and send
             const signedTx = await wallet.signTransaction(transaction);
+
+            // Send with skipPreflight: true to bypass the RPC-level simulation check.
+            // This avoids the "already processed" error during the simulation phase.
             const txId = await connection.sendRawTransaction(signedTx.serialize(), {
-                skipPreflight: false,
-                preflightCommitment: 'confirmed'
+                skipPreflight: true,
             });
 
-            // 8. Use the modern confirmation strategy
+            // 8. Confirm the transaction
             await connection.confirmTransaction({
                 blockhash,
                 lastValidBlockHeight,

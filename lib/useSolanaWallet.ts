@@ -3,7 +3,7 @@
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { TOKEN_PROGRAM_ID, TOKEN_2022_PROGRAM_ID } from "@solana/spl-token";
 import { useEffect, useState, useCallback, useRef } from "react";
-import { getTokenMetadata } from "./metadata";
+import { getTokenMetadata, getTokensMetadataBatch } from "./metadata";
 import { PublicKey } from "@solana/web3.js";
 
 export interface TokenAccount {
@@ -15,6 +15,8 @@ export interface TokenAccount {
     name?: string;
     symbol?: string;
     image?: string;
+    delegate?: string | null;
+    delegatedAmount?: number;
 }
 
 export function useSolanaWallet() {
@@ -23,9 +25,19 @@ export function useSolanaWallet() {
     const [tokens, setTokens] = useState<TokenAccount[]>([]);
     const [loading, setLoading] = useState(false);
     const [refreshing, setRefreshing] = useState(false);
+    const lastFetchTime = useRef<number>(0);
 
     const fetchAssets = useCallback(async (silent = false) => {
         if (!publicKey) return;
+
+        // Rate limiting: avoid fetching more than once every 5 seconds
+        const now = Date.now();
+        if (now - lastFetchTime.current < 5000) {
+            console.log("Throttling asset fetch (cooldown)...");
+            return;
+        }
+        lastFetchTime.current = now;
+
         if (!silent) setLoading(true);
         else setRefreshing(true);
 
@@ -56,30 +68,33 @@ export function useSolanaWallet() {
 
             const parsedTokens = allAccounts.map((account) => {
                 const parsedInfo = account.account.data.parsed.info;
+                const delegateInfo = parsedInfo.delegate;
+                const delegatedAmount = parsedInfo.delegatedAmount ? parsedInfo.delegatedAmount.uiAmount : 0;
+
                 return {
                     mint: parsedInfo.mint,
                     balance: parsedInfo.tokenAmount.uiAmount,
                     decimals: parsedInfo.tokenAmount.decimals,
                     pubkey: account.pubkey.toBase58(),
+                    delegate: delegateInfo || null,
+                    delegatedAmount: delegatedAmount,
                 };
             }).filter(t => t.balance > 0);
 
-            // 4. Fetch Metadata for each token
-            const tokensWithMetadata = await Promise.all([
-                Promise.resolve(nativeSol),
-                ...parsedTokens.map(async (token) => {
-                    const metadata = await getTokenMetadata(connection, token.mint);
-                    if (metadata) {
-                        return {
-                            ...token,
-                            name: metadata.name,
-                            symbol: metadata.symbol,
-                            image: metadata.image,
-                        };
-                    }
-                    return token;
+            // 4. Fetch Metadata in Batch
+            const mints = [nativeSol.mint, ...parsedTokens.map(t => t.mint)];
+            const metadataMap = await getTokensMetadataBatch(connection, mints);
+
+            const tokensWithMetadata = [
+                {
+                    ...nativeSol,
+                    ...(metadataMap[nativeSol.mint] || {})
+                },
+                ...parsedTokens.map(token => {
+                    const metadata = metadataMap[token.mint];
+                    return metadata ? { ...token, ...metadata } : token;
                 })
-            ]);
+            ];
 
             // Combine and sort
             setTokens(tokensWithMetadata);
@@ -94,7 +109,7 @@ export function useSolanaWallet() {
     useEffect(() => {
         if (connected) {
             fetchAssets();
-            const interval = setInterval(() => fetchAssets(true), 15000);
+            const interval = setInterval(() => fetchAssets(true), 60000);
             return () => clearInterval(interval);
         } else {
             setTokens([]);

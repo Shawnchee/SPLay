@@ -1,153 +1,167 @@
 "use client";
 
 import { useState } from "react";
-import { useWallet, useConnection } from "@solana/wallet-adapter-react";
-import {
-    Droplet,
-    ArrowRight,
-    Plus,
-    Coins,
-    Info,
-    Lock,
-    Loader2,
-    CheckCircle2
-} from "lucide-react";
+import { usePlayground } from "@/lib/PlaygroundContext";
 import { useSolanaWallet } from "@/lib/useSolanaWallet";
-import { Tooltip } from "@/components/Tooltip";
+import {
+    Droplets,
+    Plus,
+    ArrowRight,
+    History,
+    Loader2,
+    Info,
+    PieChart,
+    ArrowDownUp,
+    Boxes
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export function LiquiditySim() {
-    const { tokens, refresh } = useSolanaWallet();
-    const [tokenA, setTokenA] = useState("");
-    const [tokenB, setTokenB] = useState("");
-    const [loading, setLoading] = useState(false);
-    const [isSuccess, setIsSuccess] = useState(false);
+    const { publicKey } = useSolanaWallet();
+    const { state, addLP } = usePlayground();
 
-    // In a real DEX, you'd deposit into a Program-controlled Vault.
-    // For this simulation, we'll explain the mechanics.
-    const handleAddLiquidity = async () => {
-        setLoading(true);
-        // Simulate a delay for "on-chain" processing
-        await new Promise(r => setTimeout(r, 2000));
-        setLoading(false);
-        setIsSuccess(true);
-        setTimeout(() => setIsSuccess(false), 5000);
+    const [tokenA, setTokenA] = useState("SOL");
+    const [tokenB, setTokenB] = useState("USDC");
+    const [amountA, setAmountA] = useState("1.0");
+    const [amountB, setAmountB] = useState("150.0");
+    const [loading, setLoading] = useState(false);
+    const [logs, setLogs] = useState<{ msg: string, type: 'info' | 'success' | 'error' }[]>([]);
+
+    const addLog = (msg: string, type: 'info' | 'success' | 'error' = 'info') => {
+        setLogs(prev => [{ msg, type }, ...prev.slice(0, 4)]);
     };
 
-    const selectedA = tokens.find(t => t.mint === tokenA);
-    const selectedB = tokens.find(t => t.mint === tokenB);
+    const handleDeposit = async () => {
+        if (!publicKey) return;
+        setLoading(true);
+        try {
+            addLog("Calculating LP share based on pool depth...");
+            await new Promise(r => setTimeout(r, 1500));
+
+            const lpMinted = Math.sqrt(Number(amountA) * Number(amountB));
+            addLP(`${tokenA}/${tokenB}`, Number(amountA), Number(amountB), lpMinted);
+
+            addLog(`Deposited ${amountA} ${tokenA} & ${amountB} ${tokenB}`, "success");
+            addLog(`Minted ${lpMinted.toFixed(2)} LP Tokens`, "success");
+        } catch (e: any) {
+            addLog("Deposit failed: " + e.message, "error");
+        } finally {
+            setLoading(false);
+        }
+    };
 
     return (
         <div className="space-y-6">
-            <div className="bg-card p-6 rounded-2xl border shadow-sm space-y-6">
-                <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-blue-500/10 flex items-center justify-center">
-                        <Droplet className="w-5 h-5 text-blue-600" />
-                    </div>
-                    <div>
-                        <h3 className="font-bold text-lg">Yield & LP Simulator</h3>
-                        <p className="text-xs text-muted-foreground">Learn how Liquidity Pools (DEXs) work</p>
-                    </div>
-                </div>
-
-                <div className="p-4 bg-blue-500/5 border border-blue-500/10 rounded-xl flex gap-4">
-                    <Info className="w-5 h-5 text-blue-600 flex-shrink-0" />
-                    <p className="text-[12px] leading-relaxed text-blue-700/80">
-                        When you add liquidity to a pair like <b>SOL/USDC</b>, you are literally giving your tokens to a smart contract (a "Pool"). In exchange, the protocol gives you <b>LP Tokens</b> which represent your share of the pool.
-                    </p>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
-                    <div className="space-y-2">
-                        <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest pl-1">Token A</label>
-                        <select
-                            className="w-full p-4 bg-background rounded-2xl border border-input font-bold outline-none appearance-none"
-                            value={tokenA}
-                            onChange={(e) => setTokenA(e.target.value)}
-                        >
-                            <option value="">Choose Asset...</option>
-                            {tokens.map(t => (
-                                <option key={t.mint} value={t.mint}>
-                                    {t.name || t.symbol || "Unknown"} ({t.balance.toLocaleString()})
-                                </option>
-                            ))}
-                        </select>
-                    </div>
-
-                    <div className="flex justify-center md:pt-6">
-                        <div className="bg-muted p-2 rounded-full border border-border">
-                            <Plus className="w-4 h-4 text-muted-foreground" />
+            <div className="bg-card p-6 rounded-3xl border shadow-sm space-y-8 relative overflow-hidden">
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-2xl bg-blue-500/10 flex items-center justify-center">
+                            <Droplets className="w-6 h-6 text-blue-600" />
                         </div>
-                    </div>
-
-                    <div className="space-y-2">
-                        <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest pl-1">Token B</label>
-                        <select
-                            className="w-full p-4 bg-background rounded-2xl border border-input font-bold outline-none appearance-none"
-                            value={tokenB}
-                            onChange={(e) => setTokenB(e.target.value)}
-                        >
-                            <option value="">Choose Asset...</option>
-                            {tokens.map(t => (
-                                <option key={t.mint} value={t.mint}>
-                                    {t.name || t.symbol || "Unknown"} ({t.balance.toLocaleString()})
-                                </option>
-                            ))}
-                        </select>
-                    </div>
-                </div>
-
-                <div className="p-4 bg-[#f8fafc] rounded-2xl border border-border space-y-3">
-                    <div className="flex justify-between items-center text-[11px] font-bold text-muted-foreground uppercase">
-                        <span>Projected LP Receipt</span>
-                        <Tooltip content="LP (Liquidity Provider) tokens are receipts. You need them to withdraw your original tokens + fees earned.">
-                            <Info className="w-3 h-3" />
-                        </Tooltip>
-                    </div>
-                    <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white text-[10px] font-black">
-                            LP
-                        </div>
-                        <div className="font-mono text-xs font-bold">
-                            {tokenA && tokenB ? `DSWAP-${selectedA?.symbol || "A"}-${selectedB?.symbol || "B"}-LP` : "Waiting for pair..."}
+                        <div>
+                            <h3 className="text-xl font-black">Liquidity Pools</h3>
+                            <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Provide Liquidity • Enable Swaps • Earn Fees</p>
                         </div>
                     </div>
                 </div>
 
-                <button
-                    disabled={!tokenA || !tokenB || loading}
-                    onClick={handleAddLiquidity}
-                    className={cn(
-                        "w-full h-14 rounded-2xl font-black text-lg transition-all flex items-center justify-center gap-2 shadow-lg active:scale-[0.98]",
-                        isSuccess ? "bg-green-600 text-white" : "bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:grayscale"
-                    )}
-                >
-                    {loading ? <Loader2 className="w-6 h-6 animate-spin" /> :
-                        isSuccess ? <CheckCircle2 className="w-6 h-6 animate-bounce" /> :
-                            "Add Liquidity & Receive LP"}
-                </button>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div className="space-y-6">
+                        <div className="space-y-4">
+                            <div className="p-5 bg-slate-50 border border-slate-100 rounded-3xl space-y-4">
+                                <div className="flex justify-between items-end">
+                                    <div className="space-y-1.5 flex-1">
+                                        <label className="text-[10px] font-black text-muted-foreground uppercase ml-1">Token A</label>
+                                        <div className="relative">
+                                            <input
+                                                type="number"
+                                                value={amountA}
+                                                onChange={(e) => setAmountA(e.target.value)}
+                                                className="w-full h-12 bg-white border border-slate-200 rounded-xl px-4 font-black focus:border-primary/20 outline-none transition-all"
+                                            />
+                                            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-black text-slate-400">{tokenA}</span>
+                                        </div>
+                                    </div>
+                                    <div className="p-3 mb-1">
+                                        <Plus className="w-4 h-4 text-slate-300" />
+                                    </div>
+                                    <div className="space-y-1.5 flex-1">
+                                        <label className="text-[10px] font-black text-muted-foreground uppercase ml-1">Token B</label>
+                                        <div className="relative">
+                                            <input
+                                                type="number"
+                                                value={amountB}
+                                                onChange={(e) => setAmountB(e.target.value)}
+                                                className="w-full h-12 bg-white border border-slate-200 rounded-xl px-4 font-black focus:border-primary/20 outline-none transition-all"
+                                            />
+                                            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-black text-slate-400">{tokenB}</span>
+                                        </div>
+                                    </div>
+                                </div>
 
-                {isSuccess && (
-                    <div className="text-center text-[11px] font-bold text-green-600 uppercase animate-in fade-in slide-in-from-top-1">
-                        Success! You moved assets to the vault (Simulator Only)
+                                <div className="flex items-center gap-2 p-3 bg-blue-500/5 rounded-xl border border-blue-500/10">
+                                    <Info className="w-4 h-4 text-blue-600" />
+                                    <p className="text-[10px] text-blue-700 font-medium">
+                                        You are providing {amountA} {tokenA} for {amountB} {tokenB}. This sets the price at {(Number(amountB) / Number(amountA)).toFixed(2)} {tokenB} per {tokenA}.
+                                    </p>
+                                </div>
+
+                                <button
+                                    onClick={handleDeposit}
+                                    disabled={!publicKey || loading}
+                                    className="w-full h-14 bg-primary text-white rounded-2xl font-black text-lg shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                                >
+                                    {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Droplets className="w-5 h-5" />}
+                                    Deposit Liquidity
+                                </button>
+                            </div>
+                        </div>
                     </div>
-                )}
+
+                    <div className="bg-slate-50 p-6 rounded-3xl border border-slate-100 space-y-4">
+                        <h4 className="text-[10px] font-black text-muted-foreground uppercase tracking-widest flex items-center gap-2">
+                            <History className="w-3.5 h-3.5" />
+                            Pool Activity
+                        </h4>
+                        <div className="space-y-2">
+                            {logs.length === 0 ? (
+                                <p className="text-xs text-slate-400 italic py-8 text-center">Ready to deposit...</p>
+                            ) : (
+                                logs.map((log, i) => (
+                                    <div key={i} className={cn(
+                                        "p-3 rounded-xl border text-[11px] font-bold transition-all animate-in slide-in-from-left-2",
+                                        log.type === 'success' ? "bg-green-500/5 border-green-500/10 text-green-700" :
+                                            log.type === 'error' ? "bg-red-500/5 border-red-500/10 text-red-700" :
+                                                "bg-white border-slate-200 text-slate-600"
+                                    )}>
+                                        {log.msg}
+                                    </div>
+                                ))
+                            )}
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {[
-                    { title: "Vault Deposits", desc: "Tokens are moved from your ATA to the Protocol's ATA.", icon: Lock },
-                    { title: "Minting LP", desc: "Protocol mints new LP tokens to your wallet address.", icon: Coins },
-                    { title: "Swap Fees", desc: "You earn a share of every swap that uses your liquidity.", icon: ArrowRight }
-                ].map((step, idx) => (
-                    <div key={idx} className="p-4 bg-white border rounded-xl space-y-2">
-                        <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center">
-                            <step.icon className="w-4 h-4 text-slate-400" />
-                        </div>
-                        <h4 className="font-bold text-xs uppercase tracking-tight">{step.title}</h4>
-                        <p className="text-[11px] text-muted-foreground leading-relaxed">{step.desc}</p>
-                    </div>
-                ))}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="p-5 bg-white border rounded-2xl space-y-2">
+                    <h5 className="text-[11px] font-black text-muted-foreground uppercase tracking-widest flex items-center gap-2 text-primary">
+                        <PieChart className="w-3.5 h-3.5" />
+                        What is an AMM?
+                    </h5>
+                    <p className="text-xs text-muted-foreground leading-relaxed">
+                        Automated Market Makers (AMMs) use the <b>x * y = k</b> formula to ensure that as one token is bought, its price relative to the other increases.
+                    </p>
+                </div>
+                <div className="p-5 bg-white border rounded-2xl space-y-2">
+                    <h5 className="text-[11px] font-black text-muted-foreground uppercase tracking-widest flex items-center gap-2 text-primary">
+                        <Boxes className="w-3.5 h-3.5" />
+                        LP Tokens
+                    </h5>
+                    <p className="text-xs text-muted-foreground leading-relaxed">
+                        When you deposit, you receive LP tokens representing your share of the pool. You can trade these back later to withdraw your capital plus any earned fees.
+                    </p>
+                </div>
             </div>
         </div>
     );

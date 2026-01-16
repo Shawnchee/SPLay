@@ -1,0 +1,16 @@
+{
+  "name": "DataBending Coin",
+  "symbol": "DBC",
+  "description": "Token for DataBending Coin",
+  "image": "https://raw.githubusercontent.com/Shawnchee/SPLay/main/metadata/assets/dbc-1768551136938.png",
+  "attributes": [],
+  "properties": {
+    "files": [
+      {
+        "uri": "https://raw.githubusercontent.com/Shawnchee/SPLay/main/metadata/assets/dbc-1768551136938.png",
+        "type": "image/png"
+      }
+    ],
+    "category": "image"
+  }
+}

@@ -28,24 +28,12 @@ export default function PlaygroundPage() {
         <div className="max-w-5xl mx-auto space-y-8">
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-2 border-b">
                 <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center">
-                        <Gamepad2 className="w-6 h-6 text-primary" />
-                    </div>
+                    <img src="/SPLay-icon.svg" alt="SPLay Logo" className="w-8 h-8 rounded-lg shadow-sm" />
                     <div>
                         <h1 className="text-3xl font-bold tracking-tight text-foreground font-heading">DeFi Playground</h1>
                         <p className="text-sm text-muted-foreground font-medium">Safe simulations to master Solana Web3 concepts.</p>
                     </div>
                 </div>
-
-                {pythPrice && (
-                    <div className="flex items-center gap-3 px-4 py-2 bg-orange-500/5 border border-orange-500/10 rounded-2xl animate-in fade-in slide-in-from-right-2">
-                        <Zap className="w-4 h-4 text-orange-600 fill-orange-600 animate-pulse" />
-                        <div className="flex flex-col">
-                            <span className="text-[10px] font-black text-orange-700 uppercase leading-none">Pyth Live SOL</span>
-                            <span className="text-sm font-black text-orange-600 tracking-tighter">${pythPrice.toFixed(2)}</span>
-                        </div>
-                    </div>
-                )}
             </div>
 
             <div className="flex bg-[#f4f7f9] p-1.5 rounded-2xl border w-full max-w-2xl">

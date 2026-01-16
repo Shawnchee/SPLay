@@ -7,6 +7,7 @@ import { Home, LayoutGrid, Clock, Compass, HelpCircle, Settings, Users } from "l
 
 const navigation = [
     { name: "Home", href: "/", icon: Home },
+    { name: "History", href: "/history", icon: Clock },
 ];
 
 const secondaryNavigation: { name: string; href: string; icon: any }[] = [];

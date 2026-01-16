@@ -99,13 +99,17 @@ export function TokenActionModal({
                 )
             );
 
-            const { blockhash } = await connection.getLatestBlockhash();
+            const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash('confirmed');
             transaction.recentBlockhash = blockhash;
             transaction.feePayer = wallet.publicKey;
 
             const signedTx = await wallet.signTransaction(transaction);
-            const txId = await connection.sendRawTransaction(signedTx.serialize());
-            await connection.confirmTransaction(txId, 'confirmed');
+            const txId = await connection.sendRawTransaction(signedTx.serialize(), { skipPreflight: true });
+            await connection.confirmTransaction({
+                blockhash,
+                lastValidBlockHeight,
+                signature: txId
+            }, 'confirmed');
 
             setStatus("Transfer Successful!");
             setFormData({ recipient: "", amount: "" });
@@ -143,13 +147,17 @@ export function TokenActionModal({
                 )
             );
 
-            const { blockhash } = await connection.getLatestBlockhash();
+            const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash('confirmed');
             transaction.recentBlockhash = blockhash;
             transaction.feePayer = wallet.publicKey;
 
             const signedTx = await wallet.signTransaction(transaction);
-            const txId = await connection.sendRawTransaction(signedTx.serialize());
-            await connection.confirmTransaction(txId, 'confirmed');
+            const txId = await connection.sendRawTransaction(signedTx.serialize(), { skipPreflight: true });
+            await connection.confirmTransaction({
+                blockhash,
+                lastValidBlockHeight,
+                signature: txId
+            }, 'confirmed');
 
             setStatus("Delegation Successful!");
         } catch (e: any) {
@@ -177,13 +185,17 @@ export function TokenActionModal({
                 )
             );
 
-            const { blockhash } = await connection.getLatestBlockhash();
+            const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash('confirmed');
             transaction.recentBlockhash = blockhash;
             transaction.feePayer = wallet.publicKey;
 
             const signedTx = await wallet.signTransaction(transaction);
-            const txId = await connection.sendRawTransaction(signedTx.serialize());
-            await connection.confirmTransaction(txId, 'confirmed');
+            const txId = await connection.sendRawTransaction(signedTx.serialize(), { skipPreflight: true });
+            await connection.confirmTransaction({
+                blockhash,
+                lastValidBlockHeight,
+                signature: txId
+            }, 'confirmed');
 
             setStatus("Delegation Revoked Successfully!");
         } catch (e: any) {
@@ -238,13 +250,17 @@ export function TokenActionModal({
                 );
             }
 
-            const { blockhash } = await connection.getLatestBlockhash();
+            const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash('confirmed');
             transaction.recentBlockhash = blockhash;
             transaction.feePayer = wallet.publicKey;
 
             const signedTx = await wallet.signTransaction(transaction);
-            const txId = await connection.sendRawTransaction(signedTx.serialize());
-            await connection.confirmTransaction(txId, 'confirmed');
+            const txId = await connection.sendRawTransaction(signedTx.serialize(), { skipPreflight: true });
+            await connection.confirmTransaction({
+                blockhash,
+                lastValidBlockHeight,
+                signature: txId
+            }, 'confirmed');
 
             setStatus(`${action === 'freeze' ? "Frozen" : "Unfrozen"} Successfully!`);
         } catch (e: any) {

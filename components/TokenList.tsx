@@ -131,6 +131,8 @@ export function TokenList() {
                     tokenMint={selectedToken.mint}
                     tokenBalance={selectedToken.balance}
                     tokenDecimals={selectedToken.decimals}
+                    delegate={selectedToken.delegate}
+                    delegatedAmount={selectedToken.delegatedAmount}
                 />
             )}
         </>

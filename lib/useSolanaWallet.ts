@@ -116,10 +116,8 @@ export function useSolanaWallet() {
         }
     }, [connected, fetchAssets]);
 
-    const totalBalanceUSD = tokens.reduce((acc, token) => {
-        // Mock price of 1 USD for all tokens for now (matching theme mock)
-        return acc + token.balance;
-    }, 0);
+    const nativeSol = tokens.find(t => t.isNative);
+    const totalBalanceUSD = nativeSol ? nativeSol.balance : 0; // Base balance, UI will apply live price
 
     return {
         publicKey,

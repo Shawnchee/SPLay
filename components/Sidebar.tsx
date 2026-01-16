@@ -3,11 +3,12 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { Home, LayoutGrid, Clock, Compass, HelpCircle, Settings, Users } from "lucide-react";
+import { Home, LayoutGrid, Clock, Compass, HelpCircle, Settings, Users, Gamepad2 } from "lucide-react";
 
 const navigation = [
     { name: "Home", href: "/", icon: Home },
     { name: "History", href: "/history", icon: Clock },
+    { name: "Playground", href: "/playground", icon: Gamepad2 },
 ];
 
 const secondaryNavigation: { name: string; href: string; icon: any }[] = [];

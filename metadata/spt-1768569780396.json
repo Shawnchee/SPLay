@@ -1,0 +1,16 @@
+{
+  "name": "SPLay Token",
+  "symbol": "SPT",
+  "description": "Token for SPLay Token",
+  "image": "https://github.com/Shawnchee/SPLay/blob/main/metadata/assets/spt-1768569778509.png?raw=true",
+  "attributes": [],
+  "properties": {
+    "files": [
+      {
+        "uri": "https://github.com/Shawnchee/SPLay/blob/main/metadata/assets/spt-1768569778509.png?raw=true",
+        "type": "image/png"
+      }
+    ],
+    "category": "image"
+  }
+}

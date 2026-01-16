@@ -5,7 +5,6 @@ import { TokenMint } from "@/components/TokenMint";
 import { TokenList } from "@/components/TokenList";
 import { Grid2X2 as GridIcon, Info } from "lucide-react";
 import { useSolanaWallet } from "@/lib/useSolanaWallet";
-import { TransactionHistory } from "@/components/TransactionHistory";
 import { Tooltip } from "@/components/Tooltip";
 
 export default function Home() {
@@ -73,11 +72,8 @@ export default function Home() {
             <TokenList />
           </div>
 
-          {/* Transaction History */}
-          <div className="pt-8">
-            <TransactionHistory />
-          </div>
         </div>
+
 
         {/* Right Sidebar Action Panel */}
         <div className="col-span-12 lg:col-span-4 space-y-6">

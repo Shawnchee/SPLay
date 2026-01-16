@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { Tooltip } from "@/components/Tooltip";
 import { cn } from "@/lib/utils";
+import { DocBlock } from "@/components/DocBlock";
 
 export function StakingSim() {
     const { publicKey } = useSolanaWallet();
@@ -203,6 +204,16 @@ export function StakingSim() {
                     </p>
                 </div>
             </div>
+
+            <DocBlock
+                title="Proof of Stake (PoS)"
+                description="Solana uses a PoS consensus mechanism where tokens are staked to validators to secure the network. By participating in staking, you help process transactions and maintain the ledger, earning a portion of the network's inflation in return."
+                links={[
+                    { label: "Staking on Solana", href: "https://docs.solana.com/staking" },
+                    { label: "Staking FAQ", href: "https://solana.com/staking" },
+                    { label: "Solana Inflation", href: "https://docs.solana.com/developing/runtime-facilities/sysvars#clock" }
+                ]}
+            />
         </div>
     );
 }

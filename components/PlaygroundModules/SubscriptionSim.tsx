@@ -8,6 +8,7 @@ import { useSolanaWallet } from "@/lib/useSolanaWallet";
 import { performPullPayment, PLAYGROUND_SERVICE_WALLET } from "@/lib/DeFiUtils";
 import { Tooltip } from "@/components/Tooltip";
 import { cn } from "@/lib/utils";
+import { DocBlock } from "@/components/DocBlock";
 
 export function SubscriptionSim() {
     const { connection } = useConnection();
@@ -62,6 +63,15 @@ export function SubscriptionSim() {
         if (!publicKey || !selectedToken) return;
         setLoading(true);
         try {
+            // Pre-flight gas check for the Service Wallet
+            const balance = await connection.getBalance(PLAYGROUND_SERVICE_WALLET.publicKey);
+            if (balance < 0.002 * LAMPORTS_PER_SOL) {
+                addLog("Service Wallet low on gas. Auto-airdropping...", "info");
+                const sig = await connection.requestAirdrop(PLAYGROUND_SERVICE_WALLET.publicKey, 0.5 * LAMPORTS_PER_SOL);
+                await connection.confirmTransaction(sig, 'confirmed');
+                setSimWalletBalance(await connection.getBalance(PLAYGROUND_SERVICE_WALLET.publicKey) / LAMPORTS_PER_SOL);
+            }
+
             addLog(`Simulating 'Netflix' pull payment of 10 tokens...`, "info");
 
             const signature = await performPullPayment(
@@ -77,7 +87,11 @@ export function SubscriptionSim() {
             refresh();
         } catch (e: any) {
             console.error(e);
-            addLog("Charge failed: " + e.message, "error");
+            let errorMsg = e.message || "Failed to charge";
+            if (errorMsg.includes("debit an account but found no record")) {
+                errorMsg = "Service Wallet needs gas. Click 'Airdrop Gas' first!";
+            }
+            addLog("Charge failed: " + errorMsg, "error");
         } finally {
             setLoading(false);
         }
@@ -247,6 +261,16 @@ export function SubscriptionSim() {
                     </div>
                 )}
             </div>
+
+            <DocBlock
+                title="Pull Payments & Delegation"
+                description="Unlike push payments where you must approve every transaction, pull payments allow a authorized delegate (like a subscription service) to withdraw funds automatically. This uses the 'Approve' instruction to set an allowance, which the service can later 'transferFrom' your wallet."
+                links={[
+                    { label: "Token Delegation Docs", href: "https://spl.solana.com/token#delegation" },
+                    { label: "Solana Payroll Ideas", href: "https://solana.com/developers/defi" },
+                    { label: "Metaplex Authorization", href: "https://docs.metaplex.com/" }
+                ]}
+            />
         </div>
     );
 }

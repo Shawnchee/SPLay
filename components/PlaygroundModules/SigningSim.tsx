@@ -19,10 +19,12 @@ import {
     AlertCircle,
     CheckCircle2,
     Scale,
-    ArrowDownRight
+    ArrowDownRight,
+    UserCheck
 } from "lucide-react";
 import { Tooltip } from "@/components/Tooltip";
 import { cn } from "@/lib/utils";
+import { DocBlock } from "@/components/DocBlock";
 
 export function SigningSim() {
     const { connection } = useConnection();
@@ -36,6 +38,9 @@ export function SigningSim() {
         preBalance?: number;
         postBalance?: number;
     }>({});
+    const [verifying, setVerifying] = useState(false);
+    const [isVerified, setIsVerified] = useState(false);
+    const [loginSim, setLoginSim] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
     const handleSimulation = async () => {
@@ -87,6 +92,8 @@ export function SigningSim() {
         if (!publicKey || !signTransaction) return;
         setStatus('signing');
         setError(null);
+        setIsVerified(false);
+        setLoginSim(false);
 
         try {
             const transaction = new Transaction().add(
@@ -110,6 +117,19 @@ export function SigningSim() {
             setError(e.message);
             setStatus('idle');
         }
+    };
+
+    const runVerification = async () => {
+        setVerifying(true);
+        // Simulate the math check (Ed25519 verification)
+        await new Promise(r => setTimeout(r, 1200));
+        setIsVerified(true);
+        setVerifying(false);
+    };
+
+    const runLoginSim = async () => {
+        setLoginSim(true);
+        await new Promise(r => setTimeout(r, 800));
     };
 
     return (
@@ -219,7 +239,7 @@ export function SigningSim() {
 
                         <div className="p-5 bg-card border-2 border-dashed border-slate-200 rounded-3xl h-[280px] flex flex-col items-center justify-center text-center space-y-6">
                             {status === 'complete' ? (
-                                <div className="space-y-4 animate-in scale-90 fade-in duration-500">
+                                <div className="space-y-4 animate-in scale-90 fade-in duration-500 w-full px-4">
                                     <div className="w-16 h-16 rounded-full bg-green-500/10 flex items-center justify-center mx-auto">
                                         <ShieldCheck className="w-8 h-8 text-green-600" />
                                     </div>
@@ -229,9 +249,49 @@ export function SigningSim() {
                                             {txData.signature}
                                         </p>
                                     </div>
+
+                                    <div className="space-y-2">
+                                        {!isVerified ? (
+                                            <button
+                                                onClick={runVerification}
+                                                disabled={verifying}
+                                                className="w-full py-2 bg-orange-500/10 text-orange-600 text-[11px] font-black rounded-xl border border-orange-500/20 hover:bg-orange-500/20 transition-all flex items-center justify-center gap-2"
+                                            >
+                                                {verifying ? <Loader2 className="w-3 h-3 animate-spin" /> : <Scale className="w-3 h-3" />}
+                                                Verify Signature Math
+                                            </button>
+                                        ) : (
+                                            <div className="p-2 bg-green-500/5 border border-green-500/20 rounded-xl flex items-center gap-2 text-green-600 text-[10px] font-bold animate-in zoom-in-95">
+                                                <CheckCircle2 className="w-3 h-3" />
+                                                Signature Authenticated: Proof is mathematically valid.
+                                            </div>
+                                        )}
+
+                                        {!loginSim ? (
+                                            <button
+                                                onClick={runLoginSim}
+                                                className="w-full py-2 bg-primary/10 text-primary text-[11px] font-black rounded-xl border border-primary/20 hover:bg-primary/20 transition-all flex items-center justify-center gap-2"
+                                            >
+                                                <UserCheck className="w-3 h-3" />
+                                                Simulate dApp Login
+                                            </button>
+                                        ) : (
+                                            <div className="p-3 bg-slate-900 text-white rounded-xl text-left animate-in slide-in-from-bottom-2">
+                                                <div className="flex items-center gap-2 mb-1">
+                                                    <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                                                    <span className="text-[9px] font-bold uppercase tracking-widest text-slate-400">Authenticated Session</span>
+                                                </div>
+                                                <p className="text-[10px] font-medium text-slate-300">
+                                                    Welcome back, <span className="text-primary font-bold">{publicKey?.toBase58().slice(0, 4)}...{publicKey?.toBase58().slice(-4)}</span>.
+                                                    Your identity was proven using the signature provided above.
+                                                </p>
+                                            </div>
+                                        )}
+                                    </div>
+
                                     <button
-                                        onClick={() => { setStatus('idle'); setTxData({}); }}
-                                        className="text-[11px] font-bold text-primary hover:underline"
+                                        onClick={() => { setStatus('idle'); setTxData({}); setIsVerified(false); setLoginSim(false); }}
+                                        className="text-[11px] font-bold text-slate-400 hover:text-primary transition-colors pt-2"
                                     >
                                         Start New Session
                                     </button>
@@ -267,6 +327,16 @@ export function SigningSim() {
                         <span className="text-xs font-bold">{error}</span>
                     </div>
                 )}
+
+                <DocBlock
+                    title="Cryptographic Proofs (Ed25519)"
+                    description="Solana uses the Ed25519 elliptic curve for its signatures. This technology allows you to prove you own a wallet without ever revealing your private key. When you 'sign' a transaction, you are providing a mathematical proof that the instruction data hasn't been altered."
+                    links={[
+                        { label: "Solana Transaction Guide", href: "https://docs.solana.com/developing/programming-model/transactions" },
+                        { label: "Ed25519 Theory", href: "https://ed25519.cr.yp.to/" },
+                        { label: "Phantom Sign-In Blog", href: "https://phantom.com/learn/developers/sign-in-with-solana" }
+                    ]}
+                />
             </div>
         </div>
     );

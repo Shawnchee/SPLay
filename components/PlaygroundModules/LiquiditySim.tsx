@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { Tooltip } from "@/components/Tooltip";
 import { cn } from "@/lib/utils";
+import { DocBlock } from "@/components/DocBlock";
 
 export function LiquiditySim() {
     const { publicKey } = useSolanaWallet();
@@ -166,6 +167,16 @@ export function LiquiditySim() {
                     </p>
                 </div>
             </div>
+
+            <DocBlock
+                title="Automated Market Makers (AMMs)"
+                description="AMMs like Orca or Raydium use mathematical formulas to price assets instead of a traditional order book. By providing liquidity, you enable others to swap assets instantly. In return, you usually earn a small fee from every trade that happens in your pool."
+                links={[
+                    { label: "Solana DeFi Overview", href: "https://solana.com/developers/defi" },
+                    { label: "Orca Documentation", href: "https://docs.orca.so/" },
+                    { label: "Raydium Protocol", href: "https://raydium.io/docs/" }
+                ]}
+            />
         </div>
     );
 }

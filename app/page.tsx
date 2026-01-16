@@ -7,6 +7,7 @@ import { Grid2X2 as GridIcon, Info } from "lucide-react";
 import { useSolanaWallet } from "@/lib/useSolanaWallet";
 import { usePrices } from "@/lib/PriceProvider";
 import { Tooltip } from "@/components/Tooltip";
+import { DocBlock } from "@/components/DocBlock";
 
 export default function Home() {
   const { tokens, connected } = useSolanaWallet();
@@ -83,6 +84,16 @@ export default function Home() {
             </div>
             <TokenList />
           </div>
+
+          <DocBlock
+            title="Understanding Solana Assets"
+            description="Solana uses the SPL (Solana Program Library) standard for all fungible and non-fungible tokens. Unlike other blockchains where each token is a separate smart contract, Solana uses a single, highly optimized Token Program that manages 'Account' data to track balances and permissions."
+            links={[
+              { label: "Token Program Docs", href: "https://spl.solana.com/token" },
+              { label: "Account Model Explained", href: "https://docs.solana.com/developing/programming-model/accounts" },
+              { label: "Token-2022 Standard", href: "https://spl.solana.com/token-2022" }
+            ]}
+          />
         </div>
 
         {/* Right Sidebar Action Panel */}

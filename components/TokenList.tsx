@@ -112,9 +112,6 @@ export function TokenList() {
                                 <div className="font-extrabold text-[15px] text-foreground">
                                     {token.balance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 4 })} {token.symbol || (token.isNative ? "SOL" : "Units")}
                                 </div>
-                                <div key={prices[token.mint]?.toString()} className="text-[11px] font-bold text-muted-foreground transition-all duration-300 animate-in fade-in slide-in-from-top-1">
-                                    {getUSDValue(token.mint, token.balance)}
-                                </div>
                             </div>
                             {!token.isNative && (
                                 <button className="px-5 py-2 bg-primary/5 text-primary text-[13px] font-bold rounded-lg hover:bg-primary/20 cursor-pointer transition-all opacity-80 group-hover:opacity-100 shadow-sm border border-primary/10">

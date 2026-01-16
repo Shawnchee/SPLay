@@ -8,19 +8,48 @@ interface PriceData {
 
 interface PriceContextType {
     prices: PriceData;
+    pythPrice: number | null;
     getUSDValue: (mint: string, balance: number) => string;
 }
 
 const PriceContext = createContext<PriceContextType | undefined>(undefined);
 
 export function PriceProvider({ children }: { children: React.ReactNode }) {
-    // Initial mock prices
     const [prices, setPrices] = useState<PriceData>({
-        "So11111111111111111111111111111111111111112": 150.25, // SOL
-        // Other tokens will be given a default price if not found
+        "So11111111111111111111111111111111111111112": 150.25,
     });
+    const [pythPrice, setPythPrice] = useState<number | null>(null);
 
-    // Handle price fluctuations
+    // Fetch Live Pyth Price (SOL/USD)
+    useEffect(() => {
+        const fetchPyth = async () => {
+            try {
+                // SOL/USD Price ID for Pyth
+                const priceId = "ef0d8b6fda2ceba41da15d409211cda310a00d503893e360e427a92f150829ef";
+                const response = await fetch(`https://hermes.pyth.network/v2/updates/price/latest?ids[]=${priceId}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    const priceData = data.parsed[0].price;
+                    const price = Number(priceData.price) * Math.pow(10, priceData.expo);
+                    setPythPrice(price);
+
+                    // Sync our simulation SOL price to stay close to real life
+                    setPrices(prev => ({
+                        ...prev,
+                        "So11111111111111111111111111111111111111112": price
+                    }));
+                }
+            } catch (e) {
+                console.error("Pyth fetch failed:", e);
+            }
+        };
+
+        fetchPyth();
+        const interval = setInterval(fetchPyth, 10000); // 10s updates for live feed
+        return () => clearInterval(interval);
+    }, []);
+
+    // Handle price fluctuations for other tokens (mock)
     useEffect(() => {
         const interval = setInterval(() => {
             setPrices(prev => {
@@ -48,7 +77,7 @@ export function PriceProvider({ children }: { children: React.ReactNode }) {
     };
 
     return (
-        <PriceContext.Provider value={{ prices, getUSDValue }}>
+        <PriceContext.Provider value={{ prices, pythPrice, getUSDValue }}>
             {children}
         </PriceContext.Provider>
     );

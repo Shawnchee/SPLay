@@ -2,12 +2,12 @@
   "name": "Test",
   "symbol": "TT",
   "description": "Token for Test",
-  "image": "https://github.com/Shawnchee/SPLay/blob/main/metadata/assets/tt-1768555516619.png?raw=true",
+  "image": "https://raw.githubusercontent.com/Shawnchee/SPLay/main/metadata/assets/tt-1768555516619.png",
   "attributes": [],
   "properties": {
     "files": [
       {
-        "uri": "https://github.com/Shawnchee/SPLay/blob/main/metadata/assets/tt-1768555516619.png?raw=true",
+        "uri": "https://raw.githubusercontent.com/Shawnchee/SPLay/main/metadata/assets/tt-1768555516619.png",
         "type": "image/png"
       }
     ],

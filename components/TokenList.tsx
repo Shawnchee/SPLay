@@ -11,9 +11,11 @@ import { Send, Settings, RefreshCw } from "lucide-react";
 import { RefreshButton } from "@/components/RefreshButton";
 
 import { useSolanaWallet } from "@/lib/useSolanaWallet";
+import { usePrices } from "@/lib/PriceProvider";
 
 export function TokenList() {
     const { tokens, loading, refreshing, refresh, refreshSilent, connected, publicKey } = useSolanaWallet();
+    const { prices, getUSDValue } = usePrices();
     const { connection } = useConnection();
     const [selectedToken, setSelectedToken] = useState<any | null>(null);
 
@@ -110,8 +112,8 @@ export function TokenList() {
                                 <div className="font-extrabold text-[15px] text-foreground">
                                     {token.balance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 4 })} {token.symbol || (token.isNative ? "SOL" : "Units")}
                                 </div>
-                                <div className="text-[11px] font-bold text-green-600 uppercase tracking-wide">
-                                    Available
+                                <div key={prices[token.mint]?.toString()} className="text-[11px] font-bold text-muted-foreground transition-all duration-300 animate-in fade-in slide-in-from-top-1">
+                                    {getUSDValue(token.mint, token.balance)}
                                 </div>
                             </div>
                             {!token.isNative && (

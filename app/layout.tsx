@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { SolanaProvider } from "@/components/SolanaProvider";
 import { Sidebar } from "@/components/Sidebar";
+import { PriceProvider } from "@/lib/PriceProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -30,16 +31,18 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-white selection:bg-primary/10`}
       >
         <SolanaProvider>
-          <div className="flex bg-white text-foreground">
-            <aside className="sticky top-0 h-screen w-64 flex-shrink-0 border-r border-border bg-white">
-              <Sidebar />
-            </aside>
-            <main className="flex-1 min-h-screen overflow-x-hidden">
-              <div className="container mx-auto p-8 max-w-6xl">
-                {children}
-              </div>
-            </main>
-          </div>
+          <PriceProvider>
+            <div className="flex bg-white text-foreground">
+              <aside className="sticky top-0 h-screen w-64 flex-shrink-0 border-r border-border bg-white">
+                <Sidebar />
+              </aside>
+              <main className="flex-1 min-h-screen overflow-x-hidden">
+                <div className="container mx-auto p-8 max-w-6xl">
+                  {children}
+                </div>
+              </main>
+            </div>
+          </PriceProvider>
         </SolanaProvider>
       </body>
     </html>

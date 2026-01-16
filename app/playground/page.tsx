@@ -4,10 +4,11 @@ import { useState } from "react";
 import { SubscriptionSim } from "@/components/PlaygroundModules/SubscriptionSim";
 import { LiquiditySim } from "@/components/PlaygroundModules/LiquiditySim";
 import { StakingSim } from "@/components/PlaygroundModules/StakingSim";
+import { SigningSim } from "@/components/PlaygroundModules/SigningSim";
 import { cn } from "@/lib/utils";
-import { Gamepad2, Repeat, Droplets, Trophy } from "lucide-react";
+import { Gamepad2, Repeat, Droplets, Trophy, Fingerprint } from "lucide-react";
 
-type ModuleType = 'subscriptions' | 'liquidity' | 'staking';
+type ModuleType = 'subscriptions' | 'liquidity' | 'staking' | 'signing';
 
 export default function PlaygroundPage() {
     const [activeModule, setActiveModule] = useState<ModuleType>('subscriptions');
@@ -16,6 +17,7 @@ export default function PlaygroundPage() {
         { id: 'subscriptions', name: 'Subscriptions', icon: Repeat, desc: 'Pull Payments & Delegation' },
         { id: 'liquidity', name: 'Liquidity', icon: Droplets, desc: 'Yield Pools & LP Tokens' },
         { id: 'staking', name: 'Staking', icon: Trophy, desc: 'Proof of Stake & Locking' },
+        { id: 'signing', name: 'Signing', icon: Fingerprint, desc: 'Simulation & Cryptography' },
     ] as const;
 
     return (
@@ -54,6 +56,7 @@ export default function PlaygroundPage() {
                 {activeModule === 'subscriptions' && <SubscriptionSim />}
                 {activeModule === 'liquidity' && <LiquiditySim />}
                 {activeModule === 'staking' && <StakingSim />}
+                {activeModule === 'signing' && <SigningSim />}
             </div>
 
             <div className="mt-12 p-6 bg-slate-900 text-white rounded-3xl overflow-hidden relative">

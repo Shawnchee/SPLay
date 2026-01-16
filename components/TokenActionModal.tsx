@@ -26,11 +26,21 @@ interface TokenActionModalProps {
     tokenMint: string;
     tokenBalance: number;
     tokenDecimals: number;
+    delegate?: string | null;
+    delegatedAmount?: number;
 }
 
 type ActionType = 'transfer' | 'delegate' | 'freeze';
 
-export function TokenActionModal({ isOpen, onClose, tokenMint, tokenBalance, tokenDecimals }: TokenActionModalProps) {
+export function TokenActionModal({
+    isOpen,
+    onClose,
+    tokenMint,
+    tokenBalance,
+    tokenDecimals,
+    delegate,
+    delegatedAmount
+}: TokenActionModalProps) {
     const { connection } = useConnection();
     const wallet = useWallet();
     const [activeTab, setActiveTab] = useState<ActionType>('transfer');
@@ -145,6 +155,40 @@ export function TokenActionModal({ isOpen, onClose, tokenMint, tokenBalance, tok
         } catch (e: any) {
             console.error(e);
             setStatus("Delegation Failed: " + (e.message || e));
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleRevoke = async () => {
+        if (!wallet.publicKey || !wallet.signTransaction) return;
+        setLoading(true);
+        setStatus(null);
+        try {
+            const mintPubkey = new PublicKey(tokenMint);
+            const accountPubkey = await getAssociatedTokenAddress(mintPubkey, wallet.publicKey);
+
+            const transaction = new Transaction().add(
+                createRevokeInstruction(
+                    accountPubkey,
+                    wallet.publicKey,
+                    [],
+                    TOKEN_PROGRAM_ID
+                )
+            );
+
+            const { blockhash } = await connection.getLatestBlockhash();
+            transaction.recentBlockhash = blockhash;
+            transaction.feePayer = wallet.publicKey;
+
+            const signedTx = await wallet.signTransaction(transaction);
+            const txId = await connection.sendRawTransaction(signedTx.serialize());
+            await connection.confirmTransaction(txId, 'confirmed');
+
+            setStatus("Delegation Revoked Successfully!");
+        } catch (e: any) {
+            console.error(e);
+            setStatus("Revoke Failed: " + (e.message || e));
         } finally {
             setLoading(false);
         }
@@ -292,9 +336,30 @@ export function TokenActionModal({ isOpen, onClose, tokenMint, tokenBalance, tok
                                 <Info className="w-4 h-4 flex-shrink-0 mt-0.5" />
                                 <div>
                                     <p className="font-bold uppercase tracking-wider mb-1">What is Delegation?</p>
-                                    Approve another wallet (the "Delegate") to spend tokens on your behalf. This is how DEXs (like Raydium) or Staking platforms work—they need your permission to move tokens when you swap or stake.
+                                    Approve another wallet (the "Delegate") to spend tokens on your behalf. This is how DEXs or Staking platforms work—they need your permission to move tokens when you swap or stake.
                                 </div>
                             </div>
+
+                            {delegate && (
+                                <div className="p-4 bg-[#f4f7f9] rounded-xl border border-border space-y-2">
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Current Delegate</span>
+                                        <span className="text-xs font-mono font-bold">{delegate.slice(0, 4)}...{delegate.slice(-4)}</span>
+                                    </div>
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Allowance</span>
+                                        <span className="text-xs font-bold text-primary">{delegatedAmount?.toLocaleString()} Tokens</span>
+                                    </div>
+                                    <button
+                                        onClick={handleRevoke}
+                                        disabled={loading}
+                                        className="w-full mt-2 py-2 bg-destructive/10 text-destructive text-[11px] font-bold rounded-lg hover:bg-destructive/20 transition-all uppercase tracking-tighter"
+                                    >
+                                        Revoke Delegation
+                                    </button>
+                                </div>
+                            )}
+
                             <div className="space-y-2">
                                 <label className="text-sm font-medium">Delegate Address</label>
                                 <input
@@ -320,7 +385,7 @@ export function TokenActionModal({ isOpen, onClose, tokenMint, tokenBalance, tok
                                 className="w-full h-10 bg-primary text-primary-foreground rounded-md font-medium hover:bg-primary/90 flex items-center justify-center gap-2"
                             >
                                 {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-                                Approve
+                                {delegate ? "Update Allowance" : "Approve Delegate"}
                             </button>
                         </div>
                     )}

@@ -5,33 +5,47 @@ import { SubscriptionSim } from "@/components/PlaygroundModules/SubscriptionSim"
 import { LiquiditySim } from "@/components/PlaygroundModules/LiquiditySim";
 import { StakingSim } from "@/components/PlaygroundModules/StakingSim";
 import { SigningSim } from "@/components/PlaygroundModules/SigningSim";
+import { PositionDashboard } from "@/components/PlaygroundModules/PositionDashboard";
 import { cn } from "@/lib/utils";
-import { Gamepad2, Repeat, Droplets, Trophy, Fingerprint } from "lucide-react";
+import { usePrices } from "@/lib/PriceProvider";
+import { Gamepad2, Repeat, Droplets, Trophy, Fingerprint, LayoutDashboard, Zap } from "lucide-react";
 
-type ModuleType = 'subscriptions' | 'liquidity' | 'staking' | 'signing';
+type ModuleType = 'dashboard' | 'subscriptions' | 'liquidity' | 'staking' | 'signing';
 
 export default function PlaygroundPage() {
-    const [activeModule, setActiveModule] = useState<ModuleType>('subscriptions');
+    const [activeModule, setActiveModule] = useState<ModuleType>('dashboard');
+    const { pythPrice } = usePrices();
 
     const modules = [
-        { id: 'subscriptions', name: 'Subscriptions', icon: Repeat, desc: 'Pull Payments & Delegation' },
-        { id: 'liquidity', name: 'Liquidity', icon: Droplets, desc: 'Yield Pools & LP Tokens' },
-        { id: 'staking', name: 'Staking', icon: Trophy, desc: 'Proof of Stake & Locking' },
-        { id: 'signing', name: 'Signing', icon: Fingerprint, desc: 'Simulation & Cryptography' },
+        { id: 'dashboard', name: 'Dashboard', icon: LayoutDashboard, desc: 'Overview & TVL' },
+        { id: 'subscriptions', name: 'Subscriptions', icon: Repeat, desc: 'Pull Payments' },
+        { id: 'liquidity', name: 'Liquidity', icon: Droplets, desc: 'Yield Pools' },
+        { id: 'staking', name: 'Staking', icon: Trophy, desc: 'Token Locking' },
+        { id: 'signing', name: 'Signing', icon: Fingerprint, desc: 'Cryptography' },
     ] as const;
 
     return (
         <div className="max-w-5xl mx-auto space-y-8">
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-2 border-b">
                 <div className="flex items-center gap-3">
                     <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center">
                         <Gamepad2 className="w-6 h-6 text-primary" />
                     </div>
                     <div>
-                        <h1 className="text-3xl font-black tracking-tight">DeFi Playground</h1>
+                        <h1 className="text-3xl font-black tracking-tight tracking-tight">DeFi Playground</h1>
                         <p className="text-muted-foreground font-medium">Safe simulations to master Solana Web3 concepts.</p>
                     </div>
                 </div>
+
+                {pythPrice && (
+                    <div className="flex items-center gap-3 px-4 py-2 bg-orange-500/5 border border-orange-500/10 rounded-2xl animate-in fade-in slide-in-from-right-2">
+                        <Zap className="w-4 h-4 text-orange-600 fill-orange-600 animate-pulse" />
+                        <div className="flex flex-col">
+                            <span className="text-[10px] font-black text-orange-700 uppercase leading-none">Pyth Live SOL</span>
+                            <span className="text-sm font-black text-orange-600 tracking-tighter">${pythPrice.toFixed(2)}</span>
+                        </div>
+                    </div>
+                )}
             </div>
 
             <div className="flex bg-[#f4f7f9] p-1.5 rounded-2xl border w-full max-w-2xl">
@@ -53,6 +67,7 @@ export default function PlaygroundPage() {
             </div>
 
             <div className="animate-in fade-in slide-in-from-bottom-2 duration-500">
+                {activeModule === 'dashboard' && <PositionDashboard />}
                 {activeModule === 'subscriptions' && <SubscriptionSim />}
                 {activeModule === 'liquidity' && <LiquiditySim />}
                 {activeModule === 'staking' && <StakingSim />}

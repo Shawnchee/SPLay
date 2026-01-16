@@ -1,0 +1,16 @@
+{
+  "name": "DataBending Token",
+  "symbol": "DBT",
+  "description": "Token for DataBending Token",
+  "image": "https://github.com/Shawnchee/SPLay/blob/main/metadata/assets/dbt-1768553876112.png?raw=true",
+  "attributes": [],
+  "properties": {
+    "files": [
+      {
+        "uri": "https://github.com/Shawnchee/SPLay/blob/main/metadata/assets/dbt-1768553876112.png?raw=true",
+        "type": "image/png"
+      }
+    ],
+    "category": "image"
+  }
+}

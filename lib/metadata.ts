@@ -46,13 +46,24 @@ export async function getTokenMetadata(connection: Connection, mintAddress: stri
         // 5. If there's an external URI, attempt to fetch the JSON for the icon
         if (metadata.uri) {
             try {
-                const response = await fetch(metadata.uri);
+                // Add cache-buster for GitHub raw URLs to avoid CDN lag
+                const uriWithCache = metadata.uri.includes('github') ? `${metadata.uri}?v=${Date.now()}` : metadata.uri;
+                const response = await fetch(uriWithCache);
                 if (response.ok) {
                     const json = await response.json();
                     image = json.image || json.icon || "";
+                } else if (metadata.uri.includes('raw.githubusercontent.com')) {
+                    // Try the ?raw=true fallback if the raw subdomain is 404 (common on fresh uploads)
+                    const fallbackUri = metadata.uri.replace('raw.githubusercontent.com', 'github.com').replace('/main/', '/blob/main/') + '?raw=true';
+                    try {
+                        const fbResponse = await fetch(fallbackUri);
+                        if (fbResponse.ok) {
+                            const json = await fbResponse.json();
+                            image = json.image || json.icon || "";
+                        }
+                    } catch (fbErr) { }
                 }
             } catch (e) {
-                // Silently fail icon fetch, name/symbol still useful
                 console.warn(`Could not fetch JSON for ${mintAddress}:`, e);
             }
         }
@@ -133,10 +144,21 @@ export async function getTokensMetadataBatch(connection: Connection, mints: stri
                 // Small optimization: only fetch JSON if needed
                 if (metadata.uri) {
                     try {
-                        const response = await fetch(metadata.uri);
+                        const uriWithCache = metadata.uri.includes('github') ? `${metadata.uri}?v=${Date.now()}` : metadata.uri;
+                        const response = await fetch(uriWithCache);
                         if (response.ok) {
                             const json = await response.json();
                             image = json.image || json.icon || "";
+                        } else if (metadata.uri.includes('raw.githubusercontent.com')) {
+                            // Try fallback
+                            const fallbackUri = metadata.uri.replace('raw.githubusercontent.com', 'github.com').replace('/main/', '/blob/main/') + '?raw=true';
+                            try {
+                                const fbResponse = await fetch(fallbackUri);
+                                if (fbResponse.ok) {
+                                    const json = await fbResponse.json();
+                                    image = json.image || json.icon || "";
+                                }
+                            } catch (fbErr) { }
                         }
                     } catch (e) { }
                 }

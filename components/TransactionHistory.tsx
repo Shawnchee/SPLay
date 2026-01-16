@@ -3,7 +3,7 @@
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { useEffect, useState, useCallback } from "react";
 import { ConfirmedSignatureInfo } from "@solana/web3.js";
-import { Loader2, ExternalLink, Clock, ArrowUpRight, ArrowDownLeft, PlusCircle, RefreshCw } from "lucide-react";
+import { Loader2, ExternalLink, Clock, ArrowUpRight, ArrowDownLeft, PlusCircle, RefreshCw, Copy} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { RefreshButton } from "@/components/RefreshButton";
 
@@ -103,16 +103,16 @@ export function TransactionHistory() {
                                 <div className="flex flex-col gap-0.5">
                                     <div className="flex items-center gap-2">
                                         <span className="font-bold text-sm text-foreground tracking-tight">
-                                            {tx.signature.slice(0, 4)}...{tx.signature.slice(-4)}
+                                            {tx.signature.slice(0, 10)}...{tx.signature.slice(-10)}
                                         </span>
                                         <button
                                             onClick={() => copyToClipboard(tx.signature)}
-                                            className="text-muted-foreground hover:text-primary transition-colors"
+                                            className="text-muted-foreground hover:text-primary transition-colors cursor-pointer"
                                         >
                                             {copied === tx.signature ? (
                                                 <div className="text-[10px] font-bold text-green-600 uppercase">Copied</div>
                                             ) : (
-                                                <RefreshCw className="w-3 h-3" />
+                                                <Copy className="w-3 h-3" />
                                             )}
                                         </button>
                                         <a

@@ -77,7 +77,7 @@ The codebase is structured to be modular and defensive. Key patterns include:
 
 ---
 
-## Hosted on [www.splay.vercel.app](www.splay.vercel.app)
+## Hosted [here](https://splay-mocha.vercel.app/)
 
 ---
 

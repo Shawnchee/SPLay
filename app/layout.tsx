@@ -6,6 +6,7 @@ import { Sidebar } from "@/components/Sidebar";
 import { Footer } from "@/components/Footer";
 import { PriceProvider } from "@/lib/PriceProvider";
 import { PlaygroundProvider } from "@/lib/PlaygroundContext";
+import { Analytics } from "@vercel/analytics/next"
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -59,6 +60,7 @@ export default function RootLayout({
             </PlaygroundProvider>
           </PriceProvider>
         </SolanaProvider>
+        <Analytics />
       </body>
     </html>
   );

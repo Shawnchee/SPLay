@@ -2,7 +2,9 @@
 
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { TOKEN_PROGRAM_ID, TOKEN_2022_PROGRAM_ID } from "@solana/spl-token";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
+import { getTokenMetadata } from "./metadata";
+import { PublicKey } from "@solana/web3.js";
 
 export interface TokenAccount {
     mint: string;
@@ -10,6 +12,9 @@ export interface TokenAccount {
     pubkey: string;
     decimals: number;
     isNative?: boolean;
+    name?: string;
+    symbol?: string;
+    image?: string;
 }
 
 export function useSolanaWallet() {
@@ -59,8 +64,25 @@ export function useSolanaWallet() {
                 };
             }).filter(t => t.balance > 0);
 
+            // 4. Fetch Metadata for each token
+            const tokensWithMetadata = await Promise.all([
+                Promise.resolve(nativeSol),
+                ...parsedTokens.map(async (token) => {
+                    const metadata = await getTokenMetadata(connection, token.mint);
+                    if (metadata) {
+                        return {
+                            ...token,
+                            name: metadata.name,
+                            symbol: metadata.symbol,
+                            image: metadata.image,
+                        };
+                    }
+                    return token;
+                })
+            ]);
+
             // Combine and sort
-            setTokens([nativeSol, ...parsedTokens]);
+            setTokens(tokensWithMetadata);
         } catch (error) {
             console.error("Error fetching solana assets:", error);
         } finally {

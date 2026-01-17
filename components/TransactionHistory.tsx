@@ -7,25 +7,56 @@ import { Loader2, ExternalLink, Clock, RefreshCw, Copy } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { RefreshButton } from "@/components/RefreshButton";
 import { Tooltip } from "@/components/Tooltip";
+import {
+    getHeliusTransactions,
+    categorizeTransaction,
+    getTransactionDescription,
+    getTransactionEmoji,
+    type HeliusTransaction,
+    type TransactionCategory,
+} from "@/lib/helius";
 
-interface SimplifiedTransaction extends ConfirmedSignatureInfo {
-    // No extra fields needed for now
-}
+type Transaction = HeliusTransaction | ConfirmedSignatureInfo;
+
+const FILTER_CATEGORIES: (TransactionCategory | "all")[] = [
+    "all",
+    "token_transfer",
+    "swap",
+    "liquidity",
+    "staking",
+    "mint",
+    "burn",
+    "nft",
+    "other",
+];
 
 export function TransactionHistory() {
     const { connection } = useConnection();
     const { publicKey, connected } = useWallet();
-    const [transactions, setTransactions] = useState<SimplifiedTransaction[]>([]);
+    const [transactions, setTransactions] = useState<Transaction[]>([]);
     const [loading, setLoading] = useState(false);
     const [copied, setCopied] = useState<string | null>(null);
+    const [useHelius, setUseHelius] = useState(true);
+    const [selectedFilter, setSelectedFilter] = useState<TransactionCategory | "all">("all");
 
     const fetchTransactions = useCallback(async () => {
         if (!publicKey) return;
         setLoading(true);
         try {
-            // Only fetching signatures - single fast RPC call, prevents 429
+            // Use server-side Helius API (i love helius :) )
+            try {
+                const heliusTxs = await getHeliusTransactions(publicKey.toBase58(), 20);
+                setTransactions(heliusTxs);
+                setUseHelius(true);
+                return;
+            } catch (heliusError) {
+                console.warn("Helius unavailable, falling back to RPC:", heliusError);
+            }
+
+            // Fallback to standard RPC
             const signatures = await connection.getSignaturesForAddress(publicKey, { limit: 20 });
             setTransactions(signatures);
+            setUseHelius(false);
         } catch (e) {
             console.error("Fetch error:", e);
         } finally {
@@ -33,20 +64,7 @@ export function TransactionHistory() {
         }
     }, [publicKey, connection]);
 
-    const copyToClipboard = (text: string) => {
-        navigator.clipboard.writeText(text);
-        setCopied(text);
-        setTimeout(() => setCopied(null), 2000);
-    };
 
-    const getRelativeTime = (timestamp: number) => {
-        const now = Math.floor(Date.now() / 1000);
-        const diff = now - timestamp;
-        if (diff < 60) return "Just now";
-        if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
-        if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
-        return new Date(timestamp * 1000).toLocaleDateString();
-    };
 
     useEffect(() => {
         if (connected) {
@@ -75,6 +93,23 @@ export function TransactionHistory() {
                 </div>
             </div>
 
+            <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+                {FILTER_CATEGORIES.map((category) => (
+                    <button
+                        key={category}
+                        onClick={() => setSelectedFilter(category)}
+                        className={cn(
+                            "px-3 py-1.5 rounded-full text-[11px] font-bold uppercase whitespace-nowrap transition-all duration-200",
+                            selectedFilter === category
+                                ? "bg-primary text-white shadow-md"
+                                : "bg-slate-100 text-muted-foreground hover:bg-slate-200"
+                        )}
+                    >
+                        {category === "all" ? "All" : category.replace(/_/g, " ")}
+                    </button>
+                ))}
+            </div>
+
             {loading && transactions.length === 0 ? (
                 <div className="space-y-4">
                     {[1, 2, 3, 4].map((i) => (
@@ -90,66 +125,121 @@ export function TransactionHistory() {
                 </div>
             ) : (
                 <div className="space-y-3">
-                    {transactions.map((tx) => (
-                        <div key={tx.signature} className="p-4 flex flex-col sm:flex-row sm:items-center justify-between bg-white border border-border hover:border-primary/20 hover:shadow-lg transition-all group rounded-2xl gap-4">
-                            <div className="flex items-center gap-4">
-                                <div className={cn(
-                                    "w-12 h-12 rounded-2xl flex items-center justify-center shadow-sm border transition-all duration-300",
-                                    tx.err
-                                        ? "bg-destructive/5 border-destructive/10 text-destructive"
-                                        : "bg-primary/5 border-primary/10 text-primary group-hover:bg-primary group-hover:text-white"
-                                )}>
-                                    <Clock className="w-5 h-5" />
-                                </div>
-                                <div className="flex flex-col">
-                                    <div className="flex items-center gap-2">
-                                        <Tooltip content="The Transaction Signature is a unique ID (hash) that identifies this specific event on the Solana network.">
-                                            <span className="font-bold text-sm text-foreground tracking-tight cursor-help border-b border-dotted border-muted-foreground/30">
-                                                {tx.signature.slice(0, 8)}...{tx.signature.slice(-8)}
-                                            </span>
-                                        </Tooltip>
-                                        <div className="flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                                            <button
-                                                onClick={() => copyToClipboard(tx.signature)}
-                                                className="p-1 hover:bg-slate-100 rounded-md text-muted-foreground hover:text-primary transition-colors cursor-pointer"
-                                            >
-                                                {copied === tx.signature ? (
-                                                    <div className="text-[10px] font-bold text-green-600 uppercase">Copied</div>
-                                                ) : (
-                                                    <Copy className="w-3.5 h-3.5" />
-                                                )}
-                                            </button>
-                                            <a
-                                                href={`https://explorer.solana.com/tx/${tx.signature}?cluster=devnet`}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="p-1 hover:bg-slate-100 rounded-md text-muted-foreground hover:text-primary transition-colors"
-                                            >
-                                                <ExternalLink className="w-3.5 h-3.5" />
-                                            </a>
+                    {transactions
+                        .filter((tx) => {
+                            if (selectedFilter === "all") return true;
+                            const isHelius = useHelius && "type" in tx;
+                            const category: TransactionCategory = isHelius
+                                ? categorizeTransaction((tx as HeliusTransaction).type)
+                                : "other";
+                            return category === selectedFilter;
+                        })
+                        .map((tx) => {
+                        const isHelius = useHelius && "type" in tx;
+                        const category: TransactionCategory = isHelius
+                            ? categorizeTransaction((tx as HeliusTransaction).type)
+                            : "other";
+                        const emoji = getTransactionEmoji(category);
+                        const description = isHelius
+                            ? getTransactionDescription(tx as HeliusTransaction)
+                            : "Transaction";
+
+                        return (
+                            <div
+                                key={tx.signature}
+                                className="p-4 flex flex-col sm:flex-row sm:items-center justify-between bg-white border border-border hover:border-primary/20 hover:shadow-lg transition-all group rounded-2xl gap-4"
+                            >
+                                <div className="flex items-center gap-4">
+                                    <div
+                                        className={cn(
+                                            "w-12 h-12 rounded-2xl flex items-center justify-center shadow-sm border transition-all duration-300 text-lg",
+                                            (!isHelius && (tx as ConfirmedSignatureInfo).err) || (isHelius && (tx as HeliusTransaction).status === "failed")
+                                                ? "bg-destructive/5 border-destructive/10 text-destructive"
+                                                : "bg-primary/5 border-primary/10 text-primary group-hover:bg-primary group-hover:text-white"
+                                        )}
+                                    >
+                                        {emoji}
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <div className="flex items-center gap-2">
+                                            <Tooltip content="Transaction Signature - unique ID that identifies this transaction on Solana">
+                                                <span className="font-bold text-sm text-foreground tracking-tight cursor-help border-b border-dotted border-muted-foreground/30">
+                                                    {tx.signature.slice(0, 8)}...{tx.signature.slice(-8)}
+                                                </span>
+                                            </Tooltip>
+                                            <div className="flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                <button
+                                                    onClick={() => {
+                                                        navigator.clipboard.writeText(tx.signature);
+                                                        setCopied(tx.signature);
+                                                        setTimeout(() => setCopied(null), 2000);
+                                                    }}
+                                                    className="p-1 hover:bg-slate-100 rounded-md text-muted-foreground hover:text-primary transition-colors cursor-pointer"
+                                                >
+                                                    {copied === tx.signature ? (
+                                                        <div className="text-[10px] font-bold text-green-600 uppercase">Copied</div>
+                                                    ) : (
+                                                        <Copy className="w-3.5 h-3.5" />
+                                                    )}
+                                                </button>
+                                                <a
+                                                    href={`https://explorer.solana.com/tx/${tx.signature}?cluster=devnet`}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="p-1 hover:bg-slate-100 rounded-md text-muted-foreground hover:text-primary transition-colors"
+                                                >
+                                                    <ExternalLink className="w-3.5 h-3.5" />
+                                                </a>
+                                            </div>
+                                        </div>
+                                        <div className="flex flex-col gap-1 mt-0.5">
+                                            {isHelius && (
+                                                <p className="text-[11px] font-semibold text-foreground/70 line-clamp-1">
+                                                    {description}
+                                                </p>
+                                            )}
+                                            <Tooltip content={`Category: ${category}`}>
+                                                <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider cursor-help">
+                                                    {new Date(
+                                                        (tx as any).blockTime
+                                                            ? (tx as any).blockTime * 1000
+                                                            : Date.now()
+                                                    ).toLocaleDateString()}
+                                                </span>
+                                            </Tooltip>
                                         </div>
                                     </div>
-                                    <div className="flex items-center gap-2 mt-0.5">
-                                        <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
-                                            {tx.blockTime ? getRelativeTime(tx.blockTime) : 'Pending'}
-                                        </span>
-                                    </div>
+                                </div>
+                                <div className="flex items-center gap-4 justify-between sm:justify-end">
+                                    <Tooltip
+                                        content={
+                                            (!isHelius && (tx as ConfirmedSignatureInfo).err) || (isHelius && (tx as HeliusTransaction).status === "failed")
+                                                ? "This transaction failed to execute."
+                                                : "Successfully included in a block and finalized by nodes."
+                                        }
+                                    >
+                                        <div
+                                            className={cn(
+                                                "text-[10px] font-extrabold uppercase px-3 py-1 rounded-full border cursor-help shadow-sm",
+                                                (!isHelius && (tx as ConfirmedSignatureInfo).err) || (isHelius && (tx as HeliusTransaction).status === "failed")
+                                                    ? "bg-destructive/10 text-destructive border-destructive/20"
+                                                    : "bg-green-500/10 text-green-600 border-green-500/20"
+                                            )}
+                                        >
+                                            {(!isHelius && (tx as ConfirmedSignatureInfo).err) || (isHelius && (tx as HeliusTransaction).status === "failed") ? "Failed" : "Success"}
+                                        </div>
+                                    </Tooltip>
+                                    {isHelius && (
+                                        <Tooltip content="Transaction fee in SOL">
+                                            <span className="text-[10px] font-semibold text-muted-foreground">
+                                                {((tx as HeliusTransaction).fee / 1e9).toFixed(5)} ◎
+                                            </span>
+                                        </Tooltip>
+                                    )}
                                 </div>
                             </div>
-                            <div className="flex items-center gap-4 justify-between sm:justify-end">
-                                <Tooltip content={tx.err ? "This transaction failed to execute." : "Successfully included in a block and finalized by nodes."}>
-                                    <div className={cn(
-                                        "text-[10px] font-extrabold uppercase px-3 py-1 rounded-full border cursor-help shadow-sm",
-                                        tx.err
-                                            ? "bg-destructive/10 text-destructive border-destructive/20"
-                                            : "bg-green-500/10 text-green-600 border-green-500/20"
-                                    )}>
-                                        {tx.err ? "Failed" : "Confirmed"}
-                                    </div>
-                                </Tooltip>
-                            </div>
-                        </div>
-                    ))}
+                        );
+                    })}
                 </div>
             )}
         </div>

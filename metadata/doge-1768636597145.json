@@ -1,0 +1,16 @@
+{
+  "name": "Doggie Coin",
+  "symbol": "DOGE",
+  "description": "Token for Doggie Coin",
+  "image": "https://github.com/Shawnchee/SPLay/blob/main/metadata/assets/doge-1768636596561.png?raw=true",
+  "attributes": [],
+  "properties": {
+    "files": [
+      {
+        "uri": "https://github.com/Shawnchee/SPLay/blob/main/metadata/assets/doge-1768636596561.png?raw=true",
+        "type": "image/png"
+      }
+    ],
+    "category": "image"
+  }
+}

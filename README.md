@@ -60,8 +60,9 @@ A deep-dive tool that breaks down a transaction before it's sent:
 
 ### 4. Direct Activity Ledger
 A high-speed transaction history component that bypasses heavy indexing:
-*   **Signature Feed**: Pulls raw signatures directly from the RPC node for lowest possible latency.
-*   **Smart Fallbacks**: If parsing fails (due to custom contract instructions), it falls back to a signature view with links to the Explorer.
+*   **Transaction History**: Categorized and parsed using Helius when available, providing rich descriptions, fee information, and human-friendly categories.
+*   **Signature Feed (fallback)**: Pulls raw signatures directly from the RPC node for lowest possible latency when Helius is unavailable.
+*   **Smart Fallbacks**: If parsing fails (due to custom contract instructions or Helius downtime), the UI falls back to a signature-only view with links to the Explorer.
 
 ### 5. Live Portfolio & Market HUD
 *   **SOL-Centric HUD**: A dedicated sidebar module that tracks your native SOL balance and its realtime USD value via Pyth.

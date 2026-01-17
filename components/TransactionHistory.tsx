@@ -18,6 +18,18 @@ import {
 
 type Transaction = HeliusTransaction | ConfirmedSignatureInfo;
 
+const FILTER_CATEGORIES: (TransactionCategory | "all")[] = [
+    "all",
+    "token_transfer",
+    "swap",
+    "liquidity",
+    "staking",
+    "mint",
+    "burn",
+    "nft",
+    "other",
+];
+
 export function TransactionHistory() {
     const { connection } = useConnection();
     const { publicKey, connected } = useWallet();
@@ -25,6 +37,7 @@ export function TransactionHistory() {
     const [loading, setLoading] = useState(false);
     const [copied, setCopied] = useState<string | null>(null);
     const [useHelius, setUseHelius] = useState(true);
+    const [selectedFilter, setSelectedFilter] = useState<TransactionCategory | "all">("all");
 
     const fetchTransactions = useCallback(async () => {
         if (!publicKey) return;
@@ -82,6 +95,23 @@ export function TransactionHistory() {
                 </div>
             </div>
 
+            <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+                {FILTER_CATEGORIES.map((category) => (
+                    <button
+                        key={category}
+                        onClick={() => setSelectedFilter(category)}
+                        className={cn(
+                            "px-3 py-1.5 rounded-full text-[11px] font-bold uppercase whitespace-nowrap transition-all duration-200",
+                            selectedFilter === category
+                                ? "bg-primary text-white shadow-md"
+                                : "bg-slate-100 text-muted-foreground hover:bg-slate-200"
+                        )}
+                    >
+                        {category === "all" ? "All" : category.replace(/_/g, " ")}
+                    </button>
+                ))}
+            </div>
+
             {loading && transactions.length === 0 ? (
                 <div className="space-y-4">
                     {[1, 2, 3, 4].map((i) => (
@@ -97,7 +127,16 @@ export function TransactionHistory() {
                 </div>
             ) : (
                 <div className="space-y-3">
-                    {transactions.map((tx) => {
+                    {transactions
+                        .filter((tx) => {
+                            if (selectedFilter === "all") return true;
+                            const isHelius = useHelius && "type" in tx;
+                            const category: TransactionCategory = isHelius
+                                ? categorizeTransaction((tx as HeliusTransaction).type)
+                                : "other";
+                            return category === selectedFilter;
+                        })
+                        .map((tx) => {
                         const isHelius = useHelius && "type" in tx;
                         const category: TransactionCategory = isHelius
                             ? categorizeTransaction((tx as HeliusTransaction).type)

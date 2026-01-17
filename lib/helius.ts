@@ -1,5 +1,4 @@
-const HELIUS_API_KEY = process.env.NEXT_PUBLIC_HELIUS_API_KEY;
-const HELIUS_URL = process.env.NEXT_PUBLIC_HELIUS_URL || "https://api.helius-rpc.com/v0";
+// API calls are now handled server-side via /api/helius-transactions
 
 export type TransactionCategory = 
   | "token_transfer"
@@ -105,23 +104,19 @@ export async function getHeliusTransactions(
   address: string,
   limit = 20
 ): Promise<HeliusTransaction[]> {
-  if (!HELIUS_API_KEY) {
-    throw new Error("Helius API key not configured");
-  }
-
   try {
     const response = await fetch(
-      `${HELIUS_URL}/addresses/${address}/transactions/?api-key=${HELIUS_API_KEY}&limit=${limit}`
+      `/api/helius-transactions?address=${encodeURIComponent(address)}&limit=${limit}`
     );
 
     if (!response.ok) {
-      throw new Error(`Helius API error: ${response.status}`);
+      throw new Error(`API error: ${response.status}`);
     }
 
     const transactions: HeliusTransaction[] = await response.json();
     return transactions.sort((a, b) => b.blockTime - a.blockTime);
   } catch (error) {
-    console.error("Helius fetch failed:", error);
+    console.error("Transaction fetch failed:", error);
     throw error;
   }
 }

@@ -43,16 +43,14 @@ export function TransactionHistory() {
         if (!publicKey) return;
         setLoading(true);
         try {
-            // Try Helius first ( i love the free tier :) )
-            if (process.env.NEXT_PUBLIC_HELIUS_API_KEY) {
-                try {
-                    const heliusTxs = await getHeliusTransactions(publicKey.toBase58(), 20);
-                    setTransactions(heliusTxs);
-                    setUseHelius(true);
-                    return;
-                } catch (heliusError) {
-                    console.warn("Helius unavailable, falling back to RPC:", heliusError);
-                }
+            // Use server-side Helius API (i love helius :) )
+            try {
+                const heliusTxs = await getHeliusTransactions(publicKey.toBase58(), 20);
+                setTransactions(heliusTxs);
+                setUseHelius(true);
+                return;
+            } catch (heliusError) {
+                console.warn("Helius unavailable, falling back to RPC:", heliusError);
             }
 
             // Fallback to standard RPC

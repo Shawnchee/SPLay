@@ -14,7 +14,7 @@ export default function HistoryPage() {
                 </div>
             </div>
 
-            <div className="bg-white rounded-3xl border border-border shadow-sm p-8">
+            <div className="bg-white rounded-3xl border border-border shadow-sm p-4 sm:p-8">
                 <TransactionHistory />
             </div>
 

@@ -36,20 +36,20 @@ export default function PlaygroundPage() {
                 </div>
             </div>
 
-            <div className="flex bg-[#f4f7f9] p-1.5 rounded-2xl border w-full max-w-2xl">
+            <div className="flex bg-[#f4f7f9] p-1.5 rounded-2xl border w-full overflow-x-auto no-scrollbar scrollbar-hide">
                 {modules.map((m) => (
                     <button
                         key={m.id}
                         onClick={() => setActiveModule(m.id)}
                         className={cn(
-                            "flex-1 flex flex-col items-center gap-1 py-3 px-4 rounded-xl transition-all cursor-pointer",
+                            "flex-1 flex flex-col items-center gap-1 py-3 px-4 rounded-xl transition-all cursor-pointer min-w-[100px]",
                             activeModule === m.id
                                 ? "bg-white shadow-sm text-primary ring-1 ring-primary/5"
                                 : "text-muted-foreground hover:bg-white/50 hover:text-foreground"
                         )}
                     >
                         <m.icon className={cn("w-5 h-5", activeModule === m.id ? "text-primary" : "text-muted-foreground/50")} />
-                        <span className="text-[11px] font-black uppercase tracking-wider">{m.name}</span>
+                        <span className="text-[10px] sm:text-[11px] font-black uppercase tracking-wider">{m.name}</span>
                     </button>
                 ))}
             </div>

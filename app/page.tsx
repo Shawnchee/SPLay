@@ -19,12 +19,12 @@ export default function Home() {
   return (
     <div className="flex flex-col gap-8">
       {/* Header with Search and Wallet */}
-      <div className="flex items-center justify-between border-b border-border pb-8">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border pb-8">
         <div className="flex items-center gap-4">
           <img src="/SPLay-icon.svg" alt="SPLay Logo" className="w-8 h-8 rounded-lg shadow-sm" />
           <div>
-            <h1 className="text-3xl font-bold tracking-tight text-foreground font-heading">Dashboard</h1>
-            <p className="text-sm text-muted-foreground font-medium">Manage your Devnet assets and tokens.</p>
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground font-heading">Dashboard</h1>
+            <p className="text-xs sm:text-sm text-muted-foreground font-medium">Manage your Devnet assets and tokens.</p>
           </div>
         </div>
         <div className="flex items-center gap-4">

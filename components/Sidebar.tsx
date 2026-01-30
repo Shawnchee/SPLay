@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { Home, LayoutGrid, Clock, Compass, HelpCircle, Settings, Users, Gamepad2, Zap, ArrowUpRight, TrendingUp } from "lucide-react";
+import { Home, LayoutGrid, Clock, Compass, HelpCircle, Settings, Users, Gamepad2, Zap, ArrowUpRight, TrendingUp, X } from "lucide-react";
 import { Tooltip } from "@/components/Tooltip";
 import { usePrices } from "@/lib/PriceProvider";
 import { useSolanaWallet } from "@/lib/useSolanaWallet";
@@ -16,7 +16,11 @@ const navigation = [
 
 const secondaryNavigation: { name: string; href: string; icon: any }[] = [];
 
-export function Sidebar() {
+interface SidebarProps {
+    onClose?: () => void;
+}
+
+export function Sidebar({ onClose }: SidebarProps) {
     const pathname = usePathname();
     const { pythPrice, prices } = usePrices();
     const { tokens, connected } = useSolanaWallet();
@@ -26,11 +30,19 @@ export function Sidebar() {
 
     return (
         <div className="flex h-full flex-col">
-            <div className="flex h-16 items-center px-8 flex-shrink-0">
+            <div className="flex h-16 items-center px-8 flex-shrink-0 justify-between">
                 <div className="flex items-center gap-3">
                     <img src="/SPLay-icon.svg" alt="SPLay Logo" className="w-8 h-8 rounded-lg shadow-sm" />
                     <span className="text-lg font-bold tracking-tight text-foreground font-heading">SPLay</span>
                 </div>
+                {onClose && (
+                    <button
+                        onClick={onClose}
+                        className="lg:hidden p-2 text-muted-foreground hover:bg-[#f4f7f9] hover:text-foreground transition-colors"
+                    >
+                        <X className="w-5 h-5" />
+                    </button>
+                )}
             </div>
 
             <nav className="flex-1 space-y-1.5 px-4 py-4">
@@ -67,6 +79,7 @@ export function Sidebar() {
                         <Tooltip key={item.name} content={item.desc}>
                             <Link
                                 href={item.href}
+                                onClick={() => onClose?.()}
                                 className={cn(
                                     "flex items-center gap-4 rounded-full px-4 py-2.5 text-sm font-bold transition-all",
                                     isActive

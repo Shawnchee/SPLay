@@ -18,7 +18,7 @@ export default function Home() {
 
   return (
     <div className="flex flex-col gap-8">
-      {/* Header with Search and Wallet */}
+      {/* Header with Search and Wallet  */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border pb-8">
         <div className="flex items-center gap-4">
           <img src="/SPLay-icon.svg" alt="SPLay Logo" className="w-8 h-8 rounded-lg shadow-sm" />
